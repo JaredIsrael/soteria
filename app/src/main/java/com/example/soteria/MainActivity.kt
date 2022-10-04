@@ -11,7 +11,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val sharedPrefs = getSharedPreferences("com.android.soteria", Context.MODE_PRIVATE)
+        val sharedPrefs = getSharedPreferences(resources.getString(R.string.org), Context.MODE_PRIVATE)
         // check if user has entered the app before
         if (sharedPrefs.getBoolean("first_time", true)) {
             sharedPrefs.edit().apply {
@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun userAgreedToEula() {
-        val sharedPrefs = getSharedPreferences("com.android.soteria", Context.MODE_PRIVATE)
+        val sharedPrefs = getSharedPreferences(resources.getString(R.string.org), Context.MODE_PRIVATE)
         sharedPrefs.edit().apply {
             putBoolean("eula", true)
         }.apply()

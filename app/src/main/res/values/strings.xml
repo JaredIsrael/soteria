@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Soteria</string>
+    <string name="org">com.android.soteria</string>
 </resources>
