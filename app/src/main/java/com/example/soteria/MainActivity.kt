@@ -13,15 +13,15 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         val sharedPrefs = getSharedPreferences(resources.getString(R.string.org), Context.MODE_PRIVATE)
         // check if user has entered the app before
-        if (sharedPrefs.getBoolean("first_time", true)) {
+        if (sharedPrefs.getBoolean(resources.getString(R.string.first_time), true)) {
             sharedPrefs.edit().apply {
-                putBoolean("first_time", false)
+                putBoolean(resources.getString(R.string.first_time), false)
             }.apply()
 
             // ask the user to agree to eula
             EulaDialogFragment().show(
                 supportFragmentManager, EulaDialogFragment.TAG)
-        } else if (!sharedPrefs.getBoolean("eula", false)){
+        } else if (!sharedPrefs.getBoolean(resources.getString(R.string.eula), false)){
             EulaDialogFragment().show(
                 supportFragmentManager, EulaDialogFragment.TAG)
         } else { // need an else if to check for permissions
@@ -29,11 +29,4 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun userAgreedToEula() {
-        val sharedPrefs = getSharedPreferences(resources.getString(R.string.org), Context.MODE_PRIVATE)
-        sharedPrefs.edit().apply {
-            putBoolean("eula", true)
-        }.apply()
-        // go to get permissions
-    }
 }

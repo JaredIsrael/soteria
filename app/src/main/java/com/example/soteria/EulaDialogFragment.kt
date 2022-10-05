@@ -1,6 +1,7 @@
 package com.example.soteria
 
 import android.app.Dialog
+import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
@@ -11,18 +12,30 @@ import java.io.InputStream
 import java.io.InputStreamReader
 
 class EulaDialogFragment : DialogFragment() {
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
-        AlertDialog.Builder(requireContext())
-            .setMessage(readTextFile())
-            .setPositiveButton("Yes", DialogInterface.OnClickListener {
-                _,_ -> (activity as MainActivity).userAgreedToEula()
-            })
-            .setNegativeButton("No", DialogInterface.OnClickListener {
-                _,_ -> activity?.finish()
-            })
-            .create()
+
     companion object {
         const val TAG = "EulaDialog"
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val builder = AlertDialog.Builder(requireContext())
+            .setMessage(readTextFile())
+            .setPositiveButton(resources.getString(R.string.eula_accept), DialogInterface.OnClickListener {
+                    _,_ -> setEulaAccepted()
+            })
+            .setNegativeButton(resources.getString(R.string.eula_decline), DialogInterface.OnClickListener {
+                    _,_ -> activity?.finish()
+            })
+            .create()
+
+        return builder
+    }
+
+    private fun setEulaAccepted() {
+        val prefs = requireActivity().getSharedPreferences(resources.getString(R.string.org), Context.MODE_PRIVATE)
+        prefs.edit().apply {
+            putBoolean(resources.getString(R.string.eula), true)
+        }.apply()
     }
 
     private fun readTextFile(): String {
