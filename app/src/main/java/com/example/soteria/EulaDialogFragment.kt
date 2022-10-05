@@ -4,6 +4,11 @@ import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import java.io.BufferedReader
@@ -36,6 +41,31 @@ class EulaDialogFragment : DialogFragment() {
         prefs.edit().apply {
             putBoolean(resources.getString(R.string.eula), true)
         }.apply()
+    }
+
+    override fun onStart() {
+        Log.d(TAG,"Entered the on start lifecycle stage.")
+        super.onStart()
+    }
+
+    override fun onResume() {
+        Log.d(TAG,"Entered the on resume lifecycle stage.")
+        super.onResume()
+    }
+
+    override fun onPause() {
+        Log.d(TAG,"Entered the on pause lifecycle stage.")
+        super.onPause()
+    }
+
+    override fun onStop() {
+        Log.d(TAG,"Entered the on stop lifecycle stage.")
+        super.onStop()
+    }
+
+    override fun onDestroy() {
+        Log.d(TAG,"Entered the on destroy lifecycle stage.")
+        super.onDestroy()
     }
 
     private fun readTextFile(): String {

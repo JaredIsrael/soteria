@@ -3,10 +3,15 @@ package com.example.soteria
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.TextView
+import android.widget.Toast
 
 class MainActivity : AppCompatActivity() {
 
+    companion object {
+        const val TAG = "MainActivity"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,6 +32,35 @@ class MainActivity : AppCompatActivity() {
         } else { // need an else if to check for permissions
 
         }
+        Log.d(TAG,"Entered the on resume lifecycle stage.")
+    }
+
+    override fun onResume() {
+        Log.d(TAG,"Entered the on resume lifecycle stage.")
+        super.onResume()
+    }
+
+    override fun onStart() {
+        Log.d(TAG,"Entered the on start lifecycle stage.")
+        super.onStart()
+    }
+
+    override fun onPause() {
+        Log.d(TAG,"Entered the on pause lifecycle stage.")
+        super.onPause()
+    }
+    override fun onStop() {
+        Log.d(TAG,"Entered the on stop lifecycle stage.")
+        super.onStop()
+    }
+    override fun onRestart() {
+        Log.d(TAG,"Entered the on restart lifecycle stage.")
+        super.onRestart()
+    }
+
+    override fun onDestroy() {
+        Log.d(TAG,"Entered the on destroy lifecycle stage.")
+        super.onDestroy()
     }
 
 }
