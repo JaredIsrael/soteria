@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Soteria</string>
+    <string name="org">com.android.soteria</string>
+    <string name="eula">eula</string>
+    <string name="eula_accept">Accept</string>
+    <string name="eula_decline">Decline</string>
+    <string name="first_time">first_time</string>
 </resources>
