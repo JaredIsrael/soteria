@@ -32,40 +32,33 @@ class MainActivity : AppCompatActivity() {
         } else { // need an else if to check for permissions
 
         }
-        Toast.makeText(this, "onCreate MainActivity", Toast.LENGTH_SHORT).show()
         Log.d(TAG,"Entered the on resume lifecycle stage.")
     }
 
     override fun onResume() {
-        Toast.makeText(this, "onResume MainActivity", Toast.LENGTH_SHORT).show()
         Log.d(TAG,"Entered the on resume lifecycle stage.")
         super.onResume()
     }
 
     override fun onStart() {
-        Toast.makeText(this, "onStart MainActivity", Toast.LENGTH_SHORT).show()
         Log.d(TAG,"Entered the on start lifecycle stage.")
         super.onStart()
     }
 
     override fun onPause() {
-        Toast.makeText(this, "onPause MainActivity", Toast.LENGTH_SHORT).show()
         Log.d(TAG,"Entered the on pause lifecycle stage.")
         super.onPause()
     }
     override fun onStop() {
-        Toast.makeText(this, "onStop MainActivity", Toast.LENGTH_SHORT).show()
         Log.d(TAG,"Entered the on stop lifecycle stage.")
         super.onStop()
     }
     override fun onRestart() {
-        Toast.makeText(this, "onRestart MainActivity", Toast.LENGTH_SHORT).show()
         Log.d(TAG,"Entered the on restart lifecycle stage.")
         super.onRestart()
     }
 
     override fun onDestroy() {
-        Toast.makeText(this, "onDestroy MainActivity", Toast.LENGTH_SHORT).show()
         Log.d(TAG,"Entered the on destroy lifecycle stage.")
         super.onDestroy()
     }

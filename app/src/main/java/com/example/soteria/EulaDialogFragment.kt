@@ -44,31 +44,26 @@ class EulaDialogFragment : DialogFragment() {
     }
 
     override fun onStart() {
-        Toast.makeText(requireContext(), "onStart EulaDialogFragment", Toast.LENGTH_SHORT).show()
         Log.d(TAG,"Entered the on start lifecycle stage.")
         super.onStart()
     }
 
     override fun onResume() {
-        Toast.makeText(requireContext(), "onResume EulaDialogFragment", Toast.LENGTH_SHORT).show()
         Log.d(TAG,"Entered the on resume lifecycle stage.")
         super.onResume()
     }
 
     override fun onPause() {
-        Toast.makeText(requireContext(), "onPause EulaDialogFragment", Toast.LENGTH_SHORT).show()
         Log.d(TAG,"Entered the on pause lifecycle stage.")
         super.onPause()
     }
 
     override fun onStop() {
-        Toast.makeText(requireContext(), "onStop EulaDialogFragment", Toast.LENGTH_SHORT).show()
         Log.d(TAG,"Entered the on stop lifecycle stage.")
         super.onStop()
     }
 
     override fun onDestroy() {
-        Toast.makeText(requireContext(), "onDestroy EulaDialogFragment", Toast.LENGTH_SHORT).show()
         Log.d(TAG,"Entered the on destroy lifecycle stage.")
         super.onDestroy()
     }
