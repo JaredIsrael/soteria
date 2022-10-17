@@ -81,7 +81,11 @@ class MainActivity : AppCompatActivity() {
             Manifest.permission.CAMERA,
             Manifest.permission.RECORD_AUDIO,
             Manifest.permission.READ_CONTACTS,
-            Manifest.permission.READ_PHONE_NUMBERS)
+            Manifest.permission.READ_PHONE_NUMBERS,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION)
 
         if (!hasPermissions(this, permissionsList)) {
             requestPermissionsLauncher.launch(permissionsList)
