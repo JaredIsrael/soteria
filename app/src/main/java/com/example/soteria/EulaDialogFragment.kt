@@ -41,6 +41,8 @@ class EulaDialogFragment : DialogFragment() {
         prefs.edit().apply {
             putBoolean(resources.getString(R.string.eula), true)
         }.apply()
+
+        (activity as MainActivity).checkAndAskPermissions()
     }
 
     override fun onStart() {
