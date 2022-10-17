@@ -22,6 +22,15 @@ class EulaDialogFragment : DialogFragment() {
         const val TAG = "EulaDialog"
     }
 
+    /*
+    Name: onCreateDialog():
+    Description: Define functionality for EULA dialog buttons
+    (User must accept EULA to use app)
+
+    Details:
+    Positive (accept) button calls setEulaAccepted()
+    Negative (reject) button closes the app
+     */
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val builder = AlertDialog.Builder(requireContext())
             .setMessage(readTextFile())
@@ -36,11 +45,41 @@ class EulaDialogFragment : DialogFragment() {
         return builder
     }
 
+
+    /*
+    Name: setEulaAccepted():
+    Description: Sets variable in shared preferences indicating that the EULA was accepted and
+    then calls MainActivity.checkAndAskPermissions()
+     */
     private fun setEulaAccepted() {
         val prefs = requireActivity().getSharedPreferences(resources.getString(R.string.org), Context.MODE_PRIVATE)
         prefs.edit().apply {
             putBoolean(resources.getString(R.string.eula), true)
         }.apply()
+
+        (activity as MainActivity).checkAndAskPermissions()
+    }
+
+    /*
+    Name: readTextFile()
+    Description: Helper function to read and create a String from a text file
+     */
+
+    private fun readTextFile(): String {
+        var string: String? = ""
+        val stringBuilder = StringBuilder()
+        val `is`: InputStream = this.resources.openRawResource(R.raw.eula_text)
+        val reader = BufferedReader(InputStreamReader(`is`))
+        while (true) {
+            try {
+                if (reader.readLine().also { string = it } == null) break
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+            stringBuilder.append(string).append("\n")
+        }
+        `is`.close()
+        return stringBuilder.toString()
     }
 
     override fun onStart() {
@@ -68,20 +107,4 @@ class EulaDialogFragment : DialogFragment() {
         super.onDestroy()
     }
 
-    private fun readTextFile(): String {
-        var string: String? = ""
-        val stringBuilder = StringBuilder()
-        val `is`: InputStream = this.resources.openRawResource(R.raw.eula_text)
-        val reader = BufferedReader(InputStreamReader(`is`))
-        while (true) {
-            try {
-                if (reader.readLine().also { string = it } == null) break
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-            stringBuilder.append(string).append("\n")
-        }
-        `is`.close()
-        return stringBuilder.toString()
-    }
 }
