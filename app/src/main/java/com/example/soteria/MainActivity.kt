@@ -23,8 +23,10 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    // If the user denies permissions, tell them why the permissions are needed
+
     /*
+    If the user denies permissions, tell them why the permissions are needed
+
     if(ActivityCompat.shouldShowRequestPermissionRationale(this, the_permissions)) {
         showRationaleDialog(
             getString(R.string.rationale_title),
@@ -33,30 +35,43 @@ class MainActivity : AppCompatActivity() {
     }
      */
 
+    /*
+    onCreate():
+    Asking user to agree to EULA and accept permissions
+    (EulaDialogFragment.setEulaAccepted() calls checkAndAskPermissions)
+
+    Check if the user has entered the app before ->
+    If it's their first time, ask them to agree to the EULA
+
+    Check if the user has agreed to the EULA ->
+    If they haven't agreed to the EULA, ask them to agree to the EULA
+
+    If it's not their first time and they have agreed to the EULA ->
+    Check and ask for the appropriate permissions
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val sharedPrefs = getSharedPreferences(resources.getString(R.string.org), Context.MODE_PRIVATE)
-        // check if user has entered the app before
+
         if (sharedPrefs.getBoolean(resources.getString(R.string.first_time), true)) {
             sharedPrefs.edit().apply {
                 putBoolean(resources.getString(R.string.first_time), false)
             }.apply()
-
-            // If it's their first time, ask the user to agree to eula
-            EulaDialogFragment().show(
-                supportFragmentManager, EulaDialogFragment.TAG)
+            EulaDialogFragment().show(supportFragmentManager, EulaDialogFragment.TAG)
         } else if (!sharedPrefs.getBoolean(resources.getString(R.string.eula), false)){
-            // If they haven't agreed to the eula, ask the user to agree to eula
-            EulaDialogFragment().show(
-                supportFragmentManager, EulaDialogFragment.TAG)
+            EulaDialogFragment().show(supportFragmentManager, EulaDialogFragment.TAG)
         } else {
-            // If it's not their first time and they have already agreed to the eula, check and ask permissions as needed
             checkAndAskPermissions()
         }
         Log.d(TAG,"Entered the on resume lifecycle stage.")
     }
 
+    /*
+    checkAndAskPermission():
+    Check for each permission in the list and if any are missing, launch requestPermissionsLauncher
+    (Android will only ask the user for the specific missing permissions)
+     */
     fun checkAndAskPermissions() {
         Log.d(TAG, "Checking permissions")
 
@@ -72,6 +87,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /*
+    hasPermissions():
+    Helper function to quickly check if all permissions are granted or if 1 or more are missing
+     */
     private fun hasPermissions(context: Context, permissions: Array<String>): Boolean = permissions.all {
         ActivityCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
     }
