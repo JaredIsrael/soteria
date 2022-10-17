@@ -36,10 +36,11 @@ class MainActivity : AppCompatActivity() {
      */
 
     /*
-    onCreate():
-    Asking user to agree to EULA and accept permissions
+    Name: onCreate():
+    Description: Asking user to agree to EULA and accept permissions
     (EulaDialogFragment.setEulaAccepted() calls checkAndAskPermissions)
 
+    Details:
     Check if the user has entered the app before ->
     If it's their first time, ask them to agree to the EULA
 
@@ -68,8 +69,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     /*
-    checkAndAskPermission():
-    Check for each permission in the list and if any are missing, launch requestPermissionsLauncher
+    Name: checkAndAskPermission():
+    Description: Check for each permission in the list and if any are missing, ask for them
     (Android will only ask the user for the specific missing permissions)
      */
     fun checkAndAskPermissions() {
@@ -88,8 +89,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     /*
-    hasPermissions():
-    Helper function to quickly check if all permissions are granted or if 1 or more are missing
+    Name: hasPermissions():
+    Description: Helper function to quickly check if all permissions are granted or if 1 or more are missing
      */
     private fun hasPermissions(context: Context, permissions: Array<String>): Boolean = permissions.all {
         ActivityCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
