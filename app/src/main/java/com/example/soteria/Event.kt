@@ -3,6 +3,7 @@ package com.example.soteria
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.ForeignKey.CASCADE
 import androidx.room.PrimaryKey
 
 /*
@@ -21,7 +22,8 @@ Details:
         [ForeignKey(
             entity = Recording::class,
             childColumns = ["recording_id"],
-            parentColumns = ["id"])
+            parentColumns = ["id"],
+            onDelete = CASCADE)
         ]
 )
 data class Event (
