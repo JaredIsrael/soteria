@@ -6,7 +6,6 @@ import androidx.room.ForeignKey
 import androidx.room.ForeignKey.CASCADE
 import androidx.room.PrimaryKey
 
-// Todo: Local time or UTC?
 // Todo: Is onDelete = CASCADE okay?
 
 /*
@@ -25,8 +24,7 @@ Details:
         [ForeignKey(
             entity = Recording::class,
             childColumns = ["recording_id"],
-            parentColumns = ["id"],
-            onDelete = CASCADE)
+            parentColumns = ["id"])
         ]
 )
 data class Event (
