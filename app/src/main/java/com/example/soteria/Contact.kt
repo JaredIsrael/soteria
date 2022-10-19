@@ -4,6 +4,8 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
+// Todo: Is the recording_access scheme okay?
+
 /*
 Name: Contact
 Description: A Room-compatible data class for emergency contacts.
@@ -13,10 +15,10 @@ Details:
     - first_name: String containing first name of the emergency contact
     - last_name: String containing last name of the emergency contact
     - recording_access: Integer representing the level of access this emergency contact has to audio/video recordings
-        -- recording access = 0: Emergency contact has no access to any recordings
-        -- recording access = 1: Emergency contact has access to audio recordings
-        -- recording access = 2: Emergency contact has access to video recordings
-        -- recording access = 3: Emergency contact has access to audio AND video recordings
+        -- recording_access = 0: Emergency contact does not have access to any recordings
+        -- recording_access = 1: Emergency contact has access to audio recordings
+        -- recording_access = 2: Emergency contact has access to video recordings
+        -- recording_access = 3: Emergency contact has access to audio AND video recordings
 
  */
 @Entity

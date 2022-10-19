@@ -6,6 +6,9 @@ import androidx.room.ForeignKey
 import androidx.room.ForeignKey.CASCADE
 import androidx.room.PrimaryKey
 
+// Todo: Local time or UTC?
+// Todo: Is onDelete = CASCADE okay?
+
 /*
 Name: Event
 Description: A Room-compatible data class for safety events.

@@ -4,6 +4,9 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
+// Todo: Is boolean okay for recording format?
+// Todo: Is seconds okay for recording length unit?
+
 /*
 Name: Event
 Description: A Room-compatible data class for event recordings.
