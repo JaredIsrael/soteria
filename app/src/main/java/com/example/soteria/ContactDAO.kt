@@ -7,7 +7,8 @@ import androidx.room.Query
 
 /*
 Name: ContactDAO
-Description: A Room-compatible database access object class that enables and implements database transactions.
+Description: A Room-compatible database access object class that enables and implements database transactions
+for the Contact table.
 
 Details:
     - getAll(): Retrieves all entries in the table
@@ -15,6 +16,7 @@ Details:
     - insertAll(): Inserts all the parameter objects into the table
     - deleteAll(): Deletes all the parameter objects' entries from the table
  */
+
 @Dao
 interface ContactDAO {
     @Query("SELECT * FROM contact")
@@ -29,9 +31,4 @@ interface ContactDAO {
     @Delete
     fun deleteAll(vararg contacts: Contact)
 
-
-    /*
-    @Query("SELECT * FROM user WHERE uid IN (:userIds)")
-    fun loadAllByIds(userIds: IntArray): List<User>
-     */
 }
