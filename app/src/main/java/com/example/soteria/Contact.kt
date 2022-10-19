@@ -20,7 +20,7 @@ Details:
         -- recording access = 3: Emergency contact has access to audio AND video recordings
 
  */
-@Entity(tableName = "contacts")
+@Entity
 data class Contact (
     @PrimaryKey val id: Int,
     @ColumnInfo(name = "first_name") val first_name: String?,
