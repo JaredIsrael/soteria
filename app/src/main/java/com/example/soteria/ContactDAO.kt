@@ -13,7 +13,7 @@ Details:
     - getAll(): Retrieves all entries in the table
     - findByName(): Retrieves table entries based on first and last name
     - insertAll(): Inserts all the parameter objects into the table
-    - delete(): Deletes one entry from the table
+    - deleteAll(): Deletes all the parameter objects' entries from the table
  */
 @Dao
 interface ContactDAO {
@@ -27,7 +27,7 @@ interface ContactDAO {
     fun insertAll(vararg contacts: Contact)
 
     @Delete
-    fun delete(contact: Contact)
+    fun deleteAll(vararg contacts: Contact)
 
 
     /*
