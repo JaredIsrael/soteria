@@ -1,4 +1,4 @@
-package com.example.soteria
+package com.example.soteria.Room
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -22,7 +22,7 @@ Details:
 
 @Entity(foreignKeys =
             [ForeignKey(
-            entity = Recording::class,
+            entity = Event::class,
             parentColumns = ["id"],
             childColumns = ["event_id"],
             onDelete = CASCADE)

@@ -1,4 +1,4 @@
-package com.example.soteria
+package com.example.soteria.Room
 
 import androidx.room.Dao
 import androidx.room.Delete

@@ -1,20 +1,20 @@
-package com.example.soteria
+package com.example.soteria.Room
 
 import androidx.room.Dao
 import androidx.room.Query
 
 /*
-Name: EventDAO
+Name: RecordingDAO
 Description: A Room-compatible database access object class that enables and implements database transactions
-for the Event table.
+for the Recording table.
 
 Details:
     - getAll(): Retrieves all entries in the table
  */
 
 @Dao
-interface EventDAO {
-    @Query("SELECT * FROM event")
-    fun getAll(): List<Event>
+interface RecordingDAO {
+    @Query("SELECT * FROM recording")
+    fun getAll(): List<Recording>
 
 }

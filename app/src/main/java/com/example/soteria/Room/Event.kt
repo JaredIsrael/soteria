@@ -1,4 +1,4 @@
-package com.example.soteria
+package com.example.soteria.Room
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

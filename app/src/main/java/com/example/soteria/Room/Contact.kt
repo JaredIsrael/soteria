@@ -1,10 +1,8 @@
-package com.example.soteria
+package com.example.soteria.Room
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-
-// Todo: Is the recording_access scheme okay?
 
 /*
 Name: Contact
