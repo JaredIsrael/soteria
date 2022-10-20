@@ -1,4 +1,4 @@
-package com.example.soteria.Room
+package com.example.soteria.room.models
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -21,8 +21,8 @@ Details:
  */
 @Entity
 data class Contact (
-    @PrimaryKey val phone_number: String?,
-    @ColumnInfo(name = "first_name") val first_name: String?,
-    @ColumnInfo(name = "last_name") val last_name: String?,
-    @ColumnInfo(name = "recording_access") val recording_access: Int?
+    @PrimaryKey val phone_number: String,
+    @ColumnInfo(name = "first_name") val first_name: String,
+    @ColumnInfo(name = "last_name") val last_name: String,
+    @ColumnInfo(name = "recording_access") val recording_access: Int
 )

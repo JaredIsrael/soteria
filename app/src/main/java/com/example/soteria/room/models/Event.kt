@@ -1,4 +1,4 @@
-package com.example.soteria.Room
+package com.example.soteria.room.models
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -25,9 +25,9 @@ Details:
         ]
 )
 data class Event (
-    @PrimaryKey val id: Int?,
-    @ColumnInfo(name = "latitude") val latitude: Double?,
-    @ColumnInfo(name = "longitude") val longitude: Double?,
-    @ColumnInfo(name = "time") val time: String?,
-    @ColumnInfo(name = "recording_id") val recording_id: Int?
+    @PrimaryKey val id: Int,
+    @ColumnInfo(name = "latitude") val latitude: Double,
+    @ColumnInfo(name = "longitude") val longitude: Double,
+    @ColumnInfo(name = "time") val time: String,
+    @ColumnInfo(name = "recording_id") val recording_id: Int
 )

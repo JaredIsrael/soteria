@@ -1,4 +1,4 @@
-package com.example.soteria.Room
+package com.example.soteria.room.models
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -30,8 +30,8 @@ Details:
 )
 data class Recording (
     @PrimaryKey val id: Int?,
-    @ColumnInfo(name = "gcp_location") val gcp_location: String?,
-    @ColumnInfo(name = "length") val length: Int?,
-    @ColumnInfo(name = "format") val format: Boolean?,
-    @ColumnInfo(name = "event_id") val event_id: Int?
+    @ColumnInfo(name = "gcp_location") val gcp_location: String,
+    @ColumnInfo(name = "length") val length: Int,
+    @ColumnInfo(name = "format") val format: Boolean,
+    @ColumnInfo(name = "event_id") val event_id: Int
 )

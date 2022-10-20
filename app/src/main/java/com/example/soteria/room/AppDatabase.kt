@@ -1,9 +1,16 @@
-package com.example.soteria.Room
+package com.example.soteria.room
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.soteria.room.daos.ContactDAO
+import com.example.soteria.room.daos.EventDAO
+import com.example.soteria.room.daos.RecordingDAO
+import com.example.soteria.room.models.Contact
+import com.example.soteria.room.models.Event
+import com.example.soteria.room.models.Recording
+import java.util.concurrent.Executors
 
 /*
 Name: AppDatabase
@@ -20,6 +27,9 @@ abstract class AppDatabase : RoomDatabase() {
     companion object {
 
         private var dbInstance: AppDatabase? = null
+        private const val sNumberOfThreads = 2
+        val databaseWriteExecutor = Executors.newFixedThreadPool(
+            sNumberOfThreads)
 
         /*
         Name: getDatabase()
@@ -27,11 +37,12 @@ abstract class AppDatabase : RoomDatabase() {
          */
         fun getDatabase(context: Context): AppDatabase {
             if (dbInstance == null) {
-                dbInstance = Room.databaseBuilder(
-                    context.applicationContext,
-                    AppDatabase::class.java,
-                    "app_database").build()
-                )
+                synchronized(AppDatabase::class.java) {
+                    dbInstance = Room.databaseBuilder(
+                        context.applicationContext,
+                        AppDatabase::class.java,
+                        "app_database").build()
+                }
             }
             return dbInstance!!
         }
