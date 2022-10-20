@@ -3,10 +3,7 @@ package com.example.soteria
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.ForeignKey.CASCADE
 import androidx.room.PrimaryKey
-
-// Todo: Is onDelete = CASCADE okay?
 
 /*
 Name: Event
@@ -33,5 +30,4 @@ data class Event (
     @ColumnInfo(name = "longitude") val longitude: Double?,
     @ColumnInfo(name = "time") val time: String?,
     @ColumnInfo(name = "recording_id") val recording_id: Int?
-
 )
