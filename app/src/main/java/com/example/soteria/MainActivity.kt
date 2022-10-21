@@ -8,6 +8,11 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.navigation.NavigationBarView
 
 class MainActivity : AppCompatActivity() {
 
@@ -55,17 +60,25 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         val sharedPrefs = getSharedPreferences(resources.getString(R.string.org), Context.MODE_PRIVATE)
 
+        val bnv = findViewById<BottomNavigationView>(R.id.bottom_nav_view)
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
+                                as NavHostFragment
+        val navController = navHostFragment.navController
+        bnv.setupWithNavController(navController)
+
         if (sharedPrefs.getBoolean(resources.getString(R.string.first_time), true)) {
             sharedPrefs.edit().apply {
                 putBoolean(resources.getString(R.string.first_time), false)
             }.apply()
             EulaDialogFragment().show(supportFragmentManager, EulaDialogFragment.TAG)
+            checkAndAskPermissions()
         } else if (!sharedPrefs.getBoolean(resources.getString(R.string.eula), false)){
             EulaDialogFragment().show(supportFragmentManager, EulaDialogFragment.TAG)
+            checkAndAskPermissions()
         } else {
             checkAndAskPermissions()
         }
-        Log.d(TAG,"Entered the on resume lifecycle stage.")
+        Log.d(TAG,"Entered the on create lifecycle stage.")
     }
 
     /*
