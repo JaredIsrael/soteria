@@ -11,9 +11,4 @@ import com.example.soteria.room.models.Contact
 class ContactViewModel(private val repository: ContactRepository, application: Application) : AndroidViewModel(application!!) {
 
     val allContacts: LiveData<List<Contact>> = repository.allContacts
-
-    suspend fun insertAll(vararg contact: Contact) = viewModelScope.launch {
-        repository.insertAll(*contact)
-    }
-
 }
