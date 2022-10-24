@@ -7,7 +7,7 @@ import androidx.room.ForeignKey.CASCADE
 import androidx.room.PrimaryKey
 
 /*
-Name: Event
+Name: Recording
 Description: A Room-compatible data class for event recordings.
 
 Details:
@@ -35,3 +35,5 @@ data class Recording (
     @ColumnInfo(name = "format") val format: Boolean,
     @ColumnInfo(name = "event_id") val event_id: Int
 )
+
+

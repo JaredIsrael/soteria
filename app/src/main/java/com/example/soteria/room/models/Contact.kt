@@ -26,3 +26,4 @@ data class Contact (
     @ColumnInfo(name = "last_name") val last_name: String,
     @ColumnInfo(name = "recording_access") val recording_access: Int
 )
+

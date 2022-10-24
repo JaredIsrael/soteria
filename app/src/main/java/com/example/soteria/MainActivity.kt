@@ -6,8 +6,18 @@ import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import com.example.soteria.room.viewmodels.ContactViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -54,7 +64,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val sharedPrefs = getSharedPreferences(resources.getString(R.string.org), Context.MODE_PRIVATE)
+        var contactViewModel = ViewModelProvider(this)[ContactViewModel::class.java]
 
+        // Eula
         if (sharedPrefs.getBoolean(resources.getString(R.string.first_time), true)) {
             sharedPrefs.edit().apply {
                 putBoolean(resources.getString(R.string.first_time), false)
@@ -65,6 +77,50 @@ class MainActivity : AppCompatActivity() {
         } else {
             checkAndAskPermissions()
         }
+
+        // Add contact
+        val editTxtName = findViewById<EditText>(R.id.editTxtName)
+        val editTxtNum = findViewById<EditText>(R.id.editTxtNumber)
+        val btnAddContact = findViewById<Button>(R.id.btnAddContact)
+        btnAddContact.setOnClickListener {
+
+            val strFullName = editTxtName.text.toString().trim().split(' ')
+            val strFName = strFullName[0]
+            val strLName = strFullName[1]
+            val strNum = editTxtNum.text.toString().trim()
+
+            if (strFullName.isEmpty()) {
+                editTxtName.error = "Enter name"
+            } else if (strNum.isEmpty()) {
+                editTxtNum.error = "Enter number"
+            } else {
+                contactViewModel.insert(strNum, strFName, strLName, 1, this@MainActivity)
+            }
+        }
+
+        // Get contacts
+        val lblName = findViewById<TextView>(R.id.lblName)
+        val lblNum = findViewById<TextView>(R.id.lblNumber)
+        val btnGetContacts = findViewById<Button>(R.id.btnGetContacts)
+        var myJob: Job? = null
+        var name : String = ""
+        var num : String = ""
+
+        btnGetContacts.setOnClickListener {
+            myJob = this.lifecycleScope.launch {
+                contactViewModel.getAll(this@MainActivity).observe(this@MainActivity, Observer {
+                    for (contact in it) {
+                        name = name + ", " + contact.first_name + " " + contact.last_name
+                        num = num + ", " + contact.phone_number
+                    }
+                })
+            }
+
+            lblName.text = name
+            lblNum.text = num
+        }
+
+
         Log.d(TAG,"Entered the on resume lifecycle stage.")
     }
 

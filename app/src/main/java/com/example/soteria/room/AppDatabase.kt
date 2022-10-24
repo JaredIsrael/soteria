@@ -27,29 +27,29 @@ abstract class AppDatabase : RoomDatabase() {
     companion object {
 
         private var dbInstance: AppDatabase? = null
-        private const val sNumberOfThreads = 2
-        val databaseWriteExecutor = Executors.newFixedThreadPool(
-            sNumberOfThreads)
 
         /*
         Name: getDatabase()
         Description: Method to get database object or make one if there isn't already one.
          */
-        fun getDatabase(context: Context): AppDatabase {
-            if (dbInstance == null) {
+        fun getDatabase(context: Context, dbInstance: AppDatabase?): AppDatabase? {
+            var db = dbInstance
+            if (db == null) {
                 synchronized(AppDatabase::class.java) {
-                    dbInstance = Room.databaseBuilder(
+                    db = Room.databaseBuilder(
                         context.applicationContext,
                         AppDatabase::class.java,
                         "app_database").build()
                 }
             }
-            return dbInstance!!
+            return db
         }
 
+        /*
         fun deleteDatabase() {
             dbInstance = null
         }
+         */
     }
 
 }
