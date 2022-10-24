@@ -8,11 +8,22 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
-import androidx.navigation.findNavController
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.navigation.NavigationBarView
+
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "prefs")
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -58,27 +69,46 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val sharedPrefs = getSharedPreferences(resources.getString(R.string.org), Context.MODE_PRIVATE)
-
         val bnv = findViewById<BottomNavigationView>(R.id.bottom_nav_view)
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
-                                as NavHostFragment
+                as NavHostFragment
         val navController = navHostFragment.navController
         bnv.setupWithNavController(navController)
 
-        if (sharedPrefs.getBoolean(resources.getString(R.string.first_time), true)) {
-            sharedPrefs.edit().apply {
-                putBoolean(resources.getString(R.string.first_time), false)
-            }.apply()
-            EulaDialogFragment().show(supportFragmentManager, EulaDialogFragment.TAG)
-            checkAndAskPermissions()
-        } else if (!sharedPrefs.getBoolean(resources.getString(R.string.eula), false)){
-            EulaDialogFragment().show(supportFragmentManager, EulaDialogFragment.TAG)
-            checkAndAskPermissions()
-        } else {
-            checkAndAskPermissions()
+        GlobalScope.launch { checkIfFirstTime() }
+
+        Log.d(TAG,"Entered the on resume lifecycle stage.")
+    }
+
+    public suspend fun writeBoolToDatastore(key: String, value: Boolean){
+        val dataStoreKey = booleanPreferencesKey(key)
+        dataStore.edit { settings ->
+            settings[dataStoreKey] = value
         }
-        Log.d(TAG,"Entered the on create lifecycle stage.")
+    }
+
+    public suspend fun readBoolFromDatastore(key: String): Boolean? {
+        val dataStoreKey = booleanPreferencesKey(key)
+        val prefs = dataStore.data.first()
+        return prefs[dataStoreKey]
+    }
+
+    private suspend fun checkIfFirstTime() {
+
+        withContext(Dispatchers.IO) {
+            val firsTimeKey = booleanPreferencesKey(resources.getString(R.string.first_time))
+            val acceptedEula = readBoolFromDatastore(resources.getString(R.string.eula))
+            var ds = dataStore.data.first();
+
+            if (!ds.contains(firsTimeKey)) {
+                writeBoolToDatastore(resources.getString(R.string.first_time), false)
+                EulaDialogFragment().show(supportFragmentManager, EulaDialogFragment.TAG)
+            } else if (acceptedEula == false) {
+                EulaDialogFragment().show(supportFragmentManager, EulaDialogFragment.TAG)
+            } else {
+                checkAndAskPermissions()
+            }
+        }
     }
 
     /*

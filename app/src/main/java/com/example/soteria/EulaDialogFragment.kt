@@ -10,7 +10,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.fragment.app.DialogFragment
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStream
@@ -35,10 +40,10 @@ class EulaDialogFragment : DialogFragment() {
         val builder = AlertDialog.Builder(requireContext())
             .setMessage(readTextFile())
             .setPositiveButton(resources.getString(R.string.eula_accept), DialogInterface.OnClickListener {
-                    _,_ -> setEulaAccepted()
+                    _,_ -> GlobalScope.launch { setEulaAccepted() }
             })
             .setNegativeButton(resources.getString(R.string.eula_decline), DialogInterface.OnClickListener {
-                    _,_ -> activity?.finish()
+                    _,_ -> GlobalScope.launch { setEulaDeclined() }
             })
             .create()
 
@@ -51,14 +56,34 @@ class EulaDialogFragment : DialogFragment() {
     Description: Sets variable in shared preferences indicating that the EULA was accepted and
     then calls MainActivity.checkAndAskPermissions()
      */
-    private fun setEulaAccepted() {
-        val prefs = requireActivity().getSharedPreferences(resources.getString(R.string.org), Context.MODE_PRIVATE)
-        prefs.edit().apply {
-            putBoolean(resources.getString(R.string.eula), true)
-        }.apply()
-
-        (activity as MainActivity).checkAndAskPermissions()
+    private suspend fun setEulaAccepted() {
+        withContext(Dispatchers.IO) {
+            (activity as MainActivity).writeBoolToDatastore(
+                resources.getString(R.string.eula),
+                true
+            )
+            (activity as MainActivity).checkAndAskPermissions()
+        }
     }
+
+    /*
+    Name: setEulaDeclined():
+    Description: Sets variable in DS indicating that the EULA was declined and
+    then finishes activity
+     */
+    private suspend fun setEulaDeclined() {
+        withContext(Dispatchers.IO) {
+            (activity as MainActivity).writeBoolToDatastore(
+                resources.getString(R.string.eula),
+                false
+            )
+            activity?.finish()
+        }
+    }
+
+
+
+
 
     /*
     Name: readTextFile()
