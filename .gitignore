@@ -1,5 +1,4 @@
 *.iml
-.gradle
 /local.properties
 /.idea/caches
 /.idea/libraries
@@ -10,7 +9,8 @@
 /.idea/.name
 /.idea/misc.xml
 /.idea/vcs.xml
-/.idea/gradle.xml
+/.idea
+/.gradle
 .DS_Store
 /build
 /captures

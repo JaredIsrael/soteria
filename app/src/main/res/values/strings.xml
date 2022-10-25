@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Soteria</string>
+    <string name="org">com.android.soteria</string>
+    <string name="eula">eula</string>
+    <string name="eula_accept">Accept</string>
+    <string name="eula_decline">Decline</string>
+    <string name="first_time">first_time</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
