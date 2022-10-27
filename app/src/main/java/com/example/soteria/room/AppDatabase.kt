@@ -18,16 +18,13 @@ Description: A Room-compatible database class containing the Contact, Event, and
 
 Details:
  */
-@Database(entities = [Contact::class], version = 1)
+@Database(entities = [Contact::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun contactDao(): ContactDAO
 
     companion object {
 
         private var dbInstance: AppDatabase? = null
-        private const val sNumberOfThreads = 2
-//        val databaseWriteExecutor = Executors.newFixedThreadPool(
-//            sNumberOfThreads)
 
         /*
         Name: getDatabase()
