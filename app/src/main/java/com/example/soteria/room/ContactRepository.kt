@@ -17,7 +17,7 @@ class ContactRepository (application: Application){
 
     private val db: AppDatabase = AppDatabase.getDatabase(application)
     private var mContactDAO = db.contactDao()
-    val allContacts: LiveData<List<Contact>> = mContactDAO.getAll()
+    val allContacts: List<Contact>? = mContactDAO.getAll()
 
     @WorkerThread
     suspend fun findContactByName(contact: Contact): LiveData<Contact> {
