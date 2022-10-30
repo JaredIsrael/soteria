@@ -1,6 +1,5 @@
 package com.example.soteria
 
-import android.inputmethodservice.Keyboard
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,18 +7,17 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.soteria.room.models.Contact
-import org.w3c.dom.Text
 
 class RecyclerViewAdapter(val listener : RowClickListener): RecyclerView.Adapter<RecyclerViewAdapter.MyViewHolder>() {
 
     private var items = ArrayList<Contact>()
 
-    fun setListData( data: ArrayList<Contact>) {
+    fun setListData(data: ArrayList<Contact>) {
         this.items = data
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerViewAdapter.MyViewHolder {
-        val inflater = LayoutInflater.from(parent.context).inflate(R.layout.recyclerview_row, parent, false)
+        val inflater = LayoutInflater.from(parent.context).inflate(R.layout.recyclerview1_row, parent, false)
         return MyViewHolder(inflater, listener)
     }
 
