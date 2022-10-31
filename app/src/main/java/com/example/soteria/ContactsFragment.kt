@@ -72,9 +72,9 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
                     layoutManager = LinearLayoutManager(context)
                     importAdapter = ImportRecyclerViewAdapter(importedContacts)
                     adapter = importAdapter
-                    importAdapter.onItemClick = {
-                        Toast.makeText(requireContext(), "importedItem click", Toast.LENGTH_SHORT).show()
-                    }
+//                    importAdapter.onItemClick = {
+//                        Toast.makeText(requireContext(), "importedItem click", Toast.LENGTH_SHORT).show()
+//                    }
                     val divider = DividerItemDecoration(context.applicationContext , VERTICAL)
                     addItemDecoration(divider)
 
@@ -135,7 +135,7 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
             null, null, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
 
         if (rs != null) {
-            if (rs.moveToNext()) {
+            while (rs.moveToNext()) {
                 var name = rs.getString(0)
                 var firstName = name.split(' ')[0].toString()
                 var lastName = name.split(' ')[1].toString()
@@ -146,6 +146,7 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
         } else {
             importedContacts.add(Contact(0, "not_found", "not_found", 0, "not_found"))
         }
+        rs?.close()
 
         return importedContacts
 

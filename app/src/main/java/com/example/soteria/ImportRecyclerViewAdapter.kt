@@ -1,5 +1,6 @@
 package com.example.soteria
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +12,7 @@ import com.example.soteria.room.models.Contact
 class ImportRecyclerViewAdapter(val contactlist : ArrayList<Contact>): RecyclerView.Adapter<ImportRecyclerViewAdapter.MyViewHolder>() {
 
     private var items = contactlist
+    private var selectedPos = RecyclerView.NO_POSITION
     public var onItemClick: ((Contact) -> Unit)? = null
 
     public fun update (newContactList:ArrayList<Contact>) {
@@ -26,10 +28,17 @@ class ImportRecyclerViewAdapter(val contactlist : ArrayList<Contact>): RecyclerV
     override fun onBindViewHolder(holder: ImportRecyclerViewAdapter.MyViewHolder, position: Int) {
 
         var contact = items[position]
+        holder.bind(contact)
+
         holder.itemView.setOnClickListener {
+            if (selectedPos == position) {
+                holder.itemView.setBackgroundColor(Color.CYAN)
+            } else {
+                holder.itemView.setBackgroundColor(Color.WHITE)
+            }
             onItemClick?.invoke(contact)
         }
-        holder.bind(contact)
+
     }
 
     override fun getItemCount(): Int {
@@ -46,9 +55,6 @@ class ImportRecyclerViewAdapter(val contactlist : ArrayList<Contact>): RecyclerV
             tvName.text = data.first_name + " " + data.last_name
             tvNumber.text = data.phone_number
 
-//            deleteContactId.setOnClickListener {
-//                listener.onDeleteUserClickListener(data)
-//            }
         }
 
     }
