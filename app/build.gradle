@@ -34,6 +34,7 @@ android {
 
 dependencies {
 
+    implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.navigation:navigation-ui-ktx:2.5.2'

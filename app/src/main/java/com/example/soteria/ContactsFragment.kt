@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.provider.ContactsContract
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
@@ -18,6 +19,7 @@ import com.example.soteria.room.models.Contact
 import com.example.soteria.room.viewmodels.ContactViewModel
 import android.widget.*
 import androidx.core.app.ActivityCompat
+import androidx.recyclerview.selection.*
 
 /**
  * A simple [Fragment] subclass.
@@ -27,6 +29,8 @@ import androidx.core.app.ActivityCompat
 class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
 
     private val mContactViewModel : ContactViewModel by viewModels()
+    var importRecyclerView : RecyclerView? = null
+    lateinit var importedContacts : ArrayList<Contact>
     lateinit var recyclerViewAdapter: RecyclerViewAdapter
     lateinit var importAdapter: ImportRecyclerViewAdapter
     lateinit var name : EditText
@@ -66,25 +70,18 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
         importBtn.setOnClickListener {
             if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
 
-                var importedContacts : ArrayList<Contact> = readContacts()
+                importedContacts = readContacts()
 
-                importRecyclerView?.apply {
-                    layoutManager = LinearLayoutManager(context)
-                    importAdapter = ImportRecyclerViewAdapter(importedContacts)
-                    adapter = importAdapter
-//                    importAdapter.onItemClick = {
-//                        Toast.makeText(requireContext(), "importedItem click", Toast.LENGTH_SHORT).show()
-//                    }
-                    val divider = DividerItemDecoration(context.applicationContext , VERTICAL)
-                    addItemDecoration(divider)
-
-                    if (importedContacts.isEmpty()) {
-                        importRecyclerView!!.visibility = View.GONE
-                    } else {
-                        importRecyclerView!!.visibility = View.VISIBLE
-                        importAdapter.update(importedContacts)
-                    }
+                if (importRecyclerView.adapter == null) {
+                    setupImportRecycler(importRecyclerView!!)
                 }
+
+//                if (importedContacts.isEmpty()) {
+//                    importRecyclerView!!.visibility = View.GONE
+//                } else {
+//                    importRecyclerView!!.visibility = View.VISIBLE
+//                    importAdapter.update(importedContacts)
+//                }
             }
         }
 
@@ -128,6 +125,42 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
         saveBtn.setText("Update")
     }
 
+    private fun setupImportRecycler(importRecyclerView: RecyclerView) {
+        importRecyclerView?.apply {
+            layoutManager = LinearLayoutManager(context)
+            importAdapter = ImportRecyclerViewAdapter(importedContacts)
+            adapter = importAdapter
+            importAdapter.onItemClick = {
+                Toast.makeText(requireContext(), "importedItem click", Toast.LENGTH_SHORT).show()
+            }
+            val divider = DividerItemDecoration(context.applicationContext , VERTICAL)
+            addItemDecoration(divider)
+
+            importAdapter.tracker = setupTracker(importRecyclerView)
+
+        }
+    }
+    private fun setupTracker(importRecyclerView: RecyclerView): SelectionTracker<Long> {
+
+        return SelectionTracker.Builder(
+            "mySelection",
+            importRecyclerView,
+            StableIdKeyProvider(importRecyclerView),
+            ItemLookup(importRecyclerView),
+            StorageStrategy.createLongStorage()
+        ).withSelectionPredicate(
+            SelectionPredicates.createSelectAnything()
+        ).build()
+
+//        tracker?.addObserver(
+//            object : SelectionTracker.SelectionObserver<Long>() {
+//                override fun onSelectionChanged() {
+//                    super.onSelectionChanged()
+//                    Toast.makeText(requireContext(), tracker.selection.toString() + " click", Toast.LENGTH_SHORT).show()
+//                }
+//            })
+    }
+
     private fun readContacts() : ArrayList<Contact> {
 
         var importedContacts = ArrayList<Contact>()
@@ -150,14 +183,34 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
 
         return importedContacts
 
-        //var adapter = SimpleCursorAdapter(context, R.id.linearLayout2, rs, from, to, 0)
-
-//        if (rs != null) {
-//            if (rs.moveToNext()) {
-//                Toast.makeText(context, rs.getString(0), Toast.LENGTH_LONG).show()
-//            }
-//        }
     }
 
+    inner class ItemIdKeyProvider(private val recyclerView: RecyclerView)
+        : ItemKeyProvider<Long>(SCOPE_MAPPED) {
+
+        override fun getKey(position: Int): Long? {
+            return recyclerView.adapter?.getItemId(position)
+                ?: throw IllegalStateException("RecyclerView adapter is not set!")
+        }
+
+        override fun getPosition(key: Long): Int {
+            val viewHolder = recyclerView.findViewHolderForItemId(key)
+            return viewHolder?.layoutPosition ?: RecyclerView.NO_POSITION
+        }
+    }
+
+    inner class ItemLookup(private val rv: RecyclerView)
+        : ItemDetailsLookup<Long>() {
+        override fun getItemDetails(event: MotionEvent)
+                : ItemDetails<Long>? {
+
+            val view = rv.findChildViewUnder(event.x, event.y)
+            if(view != null) {
+                return (rv.getChildViewHolder(view) as ImportRecyclerViewAdapter.ImportContactViewHolder)
+                    .getItemDetails()
+            }
+            return null
+        }
+    }
 
 }

@@ -1,62 +1,77 @@
 package com.example.soteria
 
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.selection.ItemDetailsLookup
+import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.widget.RecyclerView
 import com.example.soteria.room.models.Contact
 
-class ImportRecyclerViewAdapter(val contactlist : ArrayList<Contact>): RecyclerView.Adapter<ImportRecyclerViewAdapter.MyViewHolder>() {
+class ImportRecyclerViewAdapter(val contactlist : ArrayList<Contact>): RecyclerView.Adapter<ImportRecyclerViewAdapter.ImportContactViewHolder>() {
 
     private var items = contactlist
-    private var selectedPos = RecyclerView.NO_POSITION
+    public var tracker: SelectionTracker<Long>? = null
     public var onItemClick: ((Contact) -> Unit)? = null
+
+    init {
+        setHasStableIds(true)
+    }
 
     public fun update (newContactList:ArrayList<Contact>) {
         items = newContactList
         notifyDataSetChanged()
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImportRecyclerViewAdapter.MyViewHolder {
+    override fun getItemId(position: Int): Long = position.toLong()
+
+    override fun getItemCount(): Int = items.size
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImportRecyclerViewAdapter.ImportContactViewHolder {
         val inflater = LayoutInflater.from(parent.context).inflate(R.layout.recyclerview2_row, parent, false)
-        return MyViewHolder(inflater)
+        return ImportContactViewHolder(inflater)
     }
 
-    override fun onBindViewHolder(holder: ImportRecyclerViewAdapter.MyViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ImportRecyclerViewAdapter.ImportContactViewHolder, position: Int) {
 
         var contact = items[position]
-        holder.bind(contact)
 
         holder.itemView.setOnClickListener {
-            if (selectedPos == position) {
-                holder.itemView.setBackgroundColor(Color.CYAN)
-            } else {
-                holder.itemView.setBackgroundColor(Color.WHITE)
-            }
             onItemClick?.invoke(contact)
         }
-
+        if (tracker!!.isSelected(position.toLong())) {
+//                it.select(position.toLong())
+//                holder.itemView.setBackgroundColor(Color.CYAN)
+            holder.itemView.background = ColorDrawable(Color.CYAN)
+        } else {
+//                it.deselect(position.toLong())
+//                holder.itemView.setBackgroundColor(Color.WHITE)
+            holder.itemView.background = ColorDrawable(Color.WHITE)
+        }
+        holder.bind(contact)
     }
 
-    override fun getItemCount(): Int {
-        return items.size
-    }
-
-    class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    class ImportContactViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
         val tvName = view.findViewById<TextView>(R.id.tvName)
         val tvNumber = view.findViewById<TextView>(R.id.tvNumber)
         val deleteContactId = view.findViewById<ImageView>(R.id.deleteContactID)
 
-        fun bind(data: Contact) {
+        fun bind(data: Contact, isActivated: Boolean = false) {
             tvName.text = data.first_name + " " + data.last_name
             tvNumber.text = data.phone_number
-
+            itemView.isActivated = isActivated
         }
 
+        fun getItemDetails(): ItemDetailsLookup.ItemDetails<Long> =
+            object : ItemDetailsLookup.ItemDetails<Long>() {
+                override fun getPosition(): Int = absoluteAdapterPosition
+                override fun getSelectionKey(): Long? = itemId
+            }
     }
 
     interface RowClickListener {
