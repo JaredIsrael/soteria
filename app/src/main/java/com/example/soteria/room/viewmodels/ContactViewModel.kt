@@ -1,13 +1,9 @@
 package com.example.soteria.room.viewmodels
 
 import android.app.Application
-import androidx.annotation.WorkerThread
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.soteria.room.AppDatabase
-import com.example.soteria.room.ContactRepository
 import com.example.soteria.room.models.Contact
 
 class ContactViewModel(application: Application) : AndroidViewModel(application!!) {
@@ -31,6 +27,12 @@ class ContactViewModel(application: Application) : AndroidViewModel(application!
     fun insertContactInfo(entity: Contact) {
         val contactDao = AppDatabase.getDatabase(getApplication()).contactDao()
         contactDao?.insertAll(entity)
+        getAllContacts()
+    }
+
+    fun insertAllContactInfo(vararg entity: Contact) {
+        val contactDao = AppDatabase.getDatabase(getApplication()).contactDao()
+        contactDao?.insertAll(*entity)
         getAllContacts()
     }
 

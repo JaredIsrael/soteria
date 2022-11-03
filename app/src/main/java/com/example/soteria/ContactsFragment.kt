@@ -31,12 +31,14 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
     private val mContactViewModel : ContactViewModel by viewModels()
     var importRecyclerView : RecyclerView? = null
     lateinit var importedContacts : ArrayList<Contact>
+    lateinit var selectedContacts : ArrayList<Contact>
     lateinit var recyclerViewAdapter: RecyclerViewAdapter
     lateinit var importAdapter: ImportRecyclerViewAdapter
     lateinit var name : EditText
     lateinit var phone : EditText
     lateinit var saveBtn : Button
     lateinit var importBtn : Button
+    lateinit var saveToAppBtn : Button
 
     var cols = listOf<String>(
         ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
@@ -66,6 +68,26 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
         phone = view.findViewById<EditText>(R.id.numInput)
         saveBtn = view.findViewById<Button>(R.id.saveButton)
         importBtn = view.findViewById<Button>(R.id.importButton)
+        saveToAppBtn = view.findViewById<Button>(R.id.saveToAppButton)
+
+        saveToAppBtn.visibility = View.INVISIBLE
+
+        saveBtn.setOnClickListener {
+            val text = name.text.split(' ')
+            val firstName = text[0]
+            val lastName = text[1]
+            val number = phone.text.toString()
+            if (saveBtn.text.equals("Save")) {
+                val cont = Contact(0, firstName, lastName, 0, number)
+                mContactViewModel.insertContactInfo(cont)
+            } else {
+                val cont = Contact(name.getTag(name.id).toString().toInt(), firstName, lastName, 0, number)
+                mContactViewModel.updateContactInfo(cont)
+                saveBtn.setText("Save")
+            }
+            name.setText("")
+            phone.setText("")
+        }
 
         importBtn.setOnClickListener {
             if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
@@ -85,21 +107,8 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
             }
         }
 
-        saveBtn.setOnClickListener {
-            val text = name.text.split(' ')
-            val firstName = text[0]
-            val lastName = text[1]
-            val number = phone.text.toString()
-            if (saveBtn.text.equals("Save")) {
-                val cont = Contact(0, firstName, lastName, 0, number)
-                mContactViewModel.insertContactInfo(cont)
-            } else {
-                val cont = Contact(name.getTag(name.id).toString().toInt(), firstName, lastName, 0, number)
-                mContactViewModel.updateContactInfo(cont)
-                saveBtn.setText("Save")
-            }
-            name.setText("")
-            phone.setText("")
+        saveToAppBtn.setOnClickListener {
+            mContactViewModel.insertAllContactInfo(*selectedContacts.toTypedArray())
         }
 
         recyclerView.apply {
@@ -142,7 +151,7 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
     }
     private fun setupTracker(importRecyclerView: RecyclerView): SelectionTracker<Long> {
 
-        return SelectionTracker.Builder(
+        var tracker = SelectionTracker.Builder(
             "mySelection",
             importRecyclerView,
             StableIdKeyProvider(importRecyclerView),
@@ -152,13 +161,26 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
             SelectionPredicates.createSelectAnything()
         ).build()
 
-//        tracker?.addObserver(
-//            object : SelectionTracker.SelectionObserver<Long>() {
-//                override fun onSelectionChanged() {
-//                    super.onSelectionChanged()
-//                    Toast.makeText(requireContext(), tracker.selection.toString() + " click", Toast.LENGTH_SHORT).show()
-//                }
-//            })
+        tracker?.addObserver(
+            object : SelectionTracker.SelectionObserver<Long>() {
+                override fun onSelectionChanged() {
+                    super.onSelectionChanged()
+                    val nItems : Int? = tracker?.selection?.size()
+
+                    if (nItems != null && nItems > 0) {
+                        saveToAppBtn.visibility = View.VISIBLE
+                        val selections = tracker?.selection!!
+                        var selectionList = selections.map {
+                            importAdapter.items[it.toInt()]
+                        }.toList()
+                        selectedContacts = ArrayList(selectionList)
+                    } else {
+                        saveToAppBtn.visibility = View.VISIBLE
+                    }
+                }
+            })
+
+        return tracker
     }
 
     private fun readContacts() : ArrayList<Contact> {

@@ -14,7 +14,7 @@ import com.example.soteria.room.models.Contact
 
 class ImportRecyclerViewAdapter(val contactlist : ArrayList<Contact>): RecyclerView.Adapter<ImportRecyclerViewAdapter.ImportContactViewHolder>() {
 
-    private var items = contactlist
+    public var items = contactlist
     public var tracker: SelectionTracker<Long>? = null
     public var onItemClick: ((Contact) -> Unit)? = null
 
@@ -44,12 +44,8 @@ class ImportRecyclerViewAdapter(val contactlist : ArrayList<Contact>): RecyclerV
             onItemClick?.invoke(contact)
         }
         if (tracker!!.isSelected(position.toLong())) {
-//                it.select(position.toLong())
-//                holder.itemView.setBackgroundColor(Color.CYAN)
             holder.itemView.background = ColorDrawable(Color.CYAN)
         } else {
-//                it.deselect(position.toLong())
-//                holder.itemView.setBackgroundColor(Color.WHITE)
             holder.itemView.background = ColorDrawable(Color.WHITE)
         }
         holder.bind(contact)
