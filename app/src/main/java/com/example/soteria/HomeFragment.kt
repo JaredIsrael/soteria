@@ -1,32 +1,42 @@
 package com.example.soteria
 
+import android.content.Context
 import android.os.Bundle
+import android.os.CountDownTimer
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
 /**
  * A simple [Fragment] subclass.
  * Use the [HomeFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class HomeFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+class HomeFragment : Fragment(), View.OnClickListener {
+
+
+    private lateinit var startBtn : Button
+    private lateinit var timeTV : TextView
+    private lateinit var timer : CountDownTimer
+    private lateinit var timeEditText : EditText
+    private lateinit var homeTV : TextView
+    private var isRunning : Boolean = false
+    // this should be a setting that can change on the settings page
+    private var initialTime : Long = 0
+    var currTime = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
+
     }
 
     override fun onCreateView(
@@ -34,26 +44,94 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false)
+        val view = inflater.inflate(R.layout.fragment_home, container, false)
+
+        startBtn = view.findViewById(R.id.startBtn)
+        startBtn.textSize = 24F
+
+        homeTV = view.findViewById(R.id.tvHome)
+        homeTV.requestFocus()
+
+        timeEditText = view.findViewById(R.id.timeET)
+
+        timeEditText.setOnEditorActionListener { v, actionId, event ->
+            return@setOnEditorActionListener when (actionId) {
+                EditorInfo.IME_ACTION_DONE -> {
+                    validateTimeText()
+                    val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm.hideSoftInputFromWindow(v.windowToken, 0)
+                    true
+                }
+                else -> false
+            }
+        }
+
+        return view
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment HomeFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            HomeFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+    override fun onClick(v: View) {
+        when (v.id) {
+            R.id.startBtn -> startBtnClicked()
+        }
     }
+
+    private fun validateTimeText() {
+        var text = timeEditText.text.toString()
+
+        if (!text.contains(':')) {
+            text = "$text:00"
+        }
+
+        timeEditText.setText(text)
+        homeTV.requestFocus()
+
+    }
+
+    private fun startBtnClicked() {
+        if (isRunning) {
+            stopTimer()
+        } else {
+            initialTime = getStartTime()
+            startTimer(initialTime)
+        }
+    }
+
+    private fun getStartTime() : Long {
+        val time = timeEditText.text.toString()
+        val min = time.substring(0, time.indexOf(':')).toLong() * 60000
+        val sec = time.substring(time.indexOf(':')+ 1).toLong() * 1000
+        return min + sec
+    }
+
+    private fun stopTimer() {
+        startBtn.text = "Start"
+        timeEditText.isEnabled = true
+        timer.cancel()
+        isRunning = false
+    }
+
+    private fun startTimer(timeInMilli : Long) {
+        timer = object : CountDownTimer(timeInMilli, 1000) {
+            override fun onTick(p0: Long) {
+                val min = (p0 / 1000) / 60
+                var sec = ((p0 / 1000) % 60).toString()
+
+                if (sec.toLong() < 10) {
+                    sec = "0$sec"
+                }
+                timeEditText.setText("$min:$sec")
+            }
+
+            override fun onFinish() {
+                timeTV.text = "Starting recording"
+                // start recording
+            }
+
+        }
+        timer.start()
+        isRunning = true
+        timeEditText.isEnabled = false
+        startBtn.text = "Stop"
+    }
+
 }
