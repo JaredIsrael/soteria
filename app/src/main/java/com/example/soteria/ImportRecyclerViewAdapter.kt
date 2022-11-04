@@ -3,6 +3,7 @@ package com.example.soteria
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -67,6 +68,7 @@ class ImportRecyclerViewAdapter(val contactlist : ArrayList<Contact>): RecyclerV
             object : ItemDetailsLookup.ItemDetails<Long>() {
                 override fun getPosition(): Int = absoluteAdapterPosition
                 override fun getSelectionKey(): Long? = itemId
+                override fun inSelectionHotspot(e: MotionEvent): Boolean = true
             }
     }
 

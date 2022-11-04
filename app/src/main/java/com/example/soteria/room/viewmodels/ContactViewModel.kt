@@ -8,8 +8,6 @@ import com.example.soteria.room.models.Contact
 
 class ContactViewModel(application: Application) : AndroidViewModel(application!!) {
 
-//    val allContacts: LiveData<List<Contact>> = repository.allContacts
-
     var allContacts : MutableLiveData<List<Contact>?> = MutableLiveData()
 
 

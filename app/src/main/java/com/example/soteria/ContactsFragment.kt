@@ -98,12 +98,6 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
                     setupImportRecycler(importRecyclerView!!)
                 }
 
-//                if (importedContacts.isEmpty()) {
-//                    importRecyclerView!!.visibility = View.GONE
-//                } else {
-//                    importRecyclerView!!.visibility = View.VISIBLE
-//                    importAdapter.update(importedContacts)
-//                }
             }
         }
 
