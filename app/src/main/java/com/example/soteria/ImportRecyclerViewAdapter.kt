@@ -23,11 +23,6 @@ class ImportRecyclerViewAdapter(val contactlist : ArrayList<Contact>): RecyclerV
         setHasStableIds(true)
     }
 
-    public fun update (newContactList:ArrayList<Contact>) {
-        items = newContactList
-        notifyDataSetChanged()
-    }
-
     override fun getItemId(position: Int): Long = position.toLong()
 
     override fun getItemCount(): Int = items.size
