@@ -39,6 +39,7 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
     lateinit var saveBtn : Button
     lateinit var importBtn : Button
     lateinit var saveToAppBtn : Button
+    lateinit var deleteBtn : Button
 
     var cols = listOf<String>(
         ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
@@ -69,8 +70,10 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
         saveBtn = view.findViewById<Button>(R.id.saveButton)
         importBtn = view.findViewById<Button>(R.id.importButton)
         saveToAppBtn = view.findViewById<Button>(R.id.saveToAppButton)
+        deleteBtn = view.findViewById<Button>(R.id.deleteButton)
 
         saveToAppBtn.visibility = View.INVISIBLE
+        deleteBtn.visibility = View.GONE
 
         saveBtn.setOnClickListener {
             val text = name.text.split(' ')
@@ -81,12 +84,23 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
                 val cont = Contact(0, firstName, lastName, 0, number)
                 mContactViewModel.insertContactInfo(cont)
             } else {
+                deleteBtn.visibility = View.VISIBLE
                 val cont = Contact(name.getTag(name.id).toString().toInt(), firstName, lastName, 0, number)
                 mContactViewModel.updateContactInfo(cont)
                 saveBtn.setText("Save")
             }
             name.setText("")
             phone.setText("")
+        }
+
+        deleteBtn.setOnClickListener {
+            val text = name.text.split(' ')
+            val firstName = text[0]
+            val lastName = text[1]
+            val number = phone.text.toString()
+            val cont =
+                Contact(name.getTag(name.id).toString().toInt(), firstName, lastName, 0, number)
+            mContactViewModel.deleteContactInfo(cont)
         }
 
         importBtn.setOnClickListener {
@@ -169,7 +183,7 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
                         }.toList()
                         selectedContacts = ArrayList(selectionList)
                     } else {
-                        saveToAppBtn.visibility = View.VISIBLE
+                        saveToAppBtn.visibility = View.INVISIBLE
                     }
                 }
             })

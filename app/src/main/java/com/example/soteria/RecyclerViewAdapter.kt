@@ -25,6 +25,7 @@ class RecyclerViewAdapter(val listener : RowClickListener): RecyclerView.Adapter
 
         holder.itemView.setOnClickListener {
             listener.onItemClickListener(items[position])
+            listener.onDeleteUserClickListener(items[position])
         }
         holder.bind(items[position])
     }
