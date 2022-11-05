@@ -73,7 +73,7 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
         deleteBtn = view.findViewById<Button>(R.id.deleteButton)
 
         saveToAppBtn.visibility = View.INVISIBLE
-        deleteBtn.visibility = View.GONE
+        deleteBtn.visibility = View.INVISIBLE
 
         saveBtn.setOnClickListener {
             val text = name.text.split(' ')
@@ -84,10 +84,10 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
                 val cont = Contact(0, firstName, lastName, 0, number)
                 mContactViewModel.insertContactInfo(cont)
             } else {
-                deleteBtn.visibility = View.VISIBLE
                 val cont = Contact(name.getTag(name.id).toString().toInt(), firstName, lastName, 0, number)
                 mContactViewModel.updateContactInfo(cont)
                 saveBtn.setText("Save")
+                deleteBtn.visibility = View.INVISIBLE
             }
             name.setText("")
             phone.setText("")
@@ -101,6 +101,8 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
             val cont =
                 Contact(name.getTag(name.id).toString().toInt(), firstName, lastName, 0, number)
             mContactViewModel.deleteContactInfo(cont)
+            name.setText("")
+            phone.setText("")
         }
 
         importBtn.setOnClickListener {
@@ -131,15 +133,16 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
         return view
     }
 
-    override fun onDeleteUserClickListener(contact: Contact) {
-        mContactViewModel.deleteContactInfo(contact)
-    }
+//    override fun onDeleteUserClickListener(contact: Contact) {
+//        mContactViewModel.deleteContactInfo(contact)
+//    }
 
     override fun onItemClickListener(contact: Contact) {
         name.setText(contact.first_name + " " + contact.last_name)
         phone.setText(contact.phone_number)
         name.setTag(name.id, contact.id)
         saveBtn.setText("Update")
+        deleteBtn.visibility = View.VISIBLE
     }
 
     private fun setupImportRecycler(importRecyclerView: RecyclerView) {
