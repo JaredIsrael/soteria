@@ -51,7 +51,6 @@ class ImportRecyclerViewAdapter(val contactlist : ArrayList<Contact>): RecyclerV
 
         val tvName = view.findViewById<TextView>(R.id.tvName)
         val tvNumber = view.findViewById<TextView>(R.id.tvNumber)
-        val deleteContactId = view.findViewById<ImageView>(R.id.deleteContactID)
 
         fun bind(data: Contact, isActivated: Boolean = false) {
             tvName.text = data.first_name + " " + data.last_name

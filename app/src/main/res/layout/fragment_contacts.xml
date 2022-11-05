@@ -32,6 +32,15 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/nameInput" />
 
+        <Spinner
+            android:id="@+id/accessSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:hint="Enter your Phone Number"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/numInput" />
+
         <Button
             android:id="@+id/saveButton"
             android:layout_width="wrap_content"
@@ -39,18 +48,17 @@
             android:layout_margin="10dp"
             android:text="Save"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/numInput" />
+            app:layout_constraintTop_toBottomOf="@+id/accessSpinner" />
 
         <Button
             android:id="@+id/deleteButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:layout_marginTop="8dp"
             android:text="Delete"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/saveButton"
-            app:layout_constraintTop_toBottomOf="@+id/numInput" />
+            app:layout_constraintTop_toBottomOf="@+id/accessSpinner" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView1"

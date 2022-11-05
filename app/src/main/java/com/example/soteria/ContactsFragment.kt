@@ -20,6 +20,7 @@ import com.example.soteria.room.viewmodels.ContactViewModel
 import android.widget.*
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.selection.*
+import kotlin.properties.Delegates
 
 /**
  * A simple [Fragment] subclass.
@@ -36,10 +37,12 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
     lateinit var importAdapter: ImportRecyclerViewAdapter
     lateinit var name : EditText
     lateinit var phone : EditText
+    public var accessNum = 0
     lateinit var saveBtn : Button
     lateinit var importBtn : Button
     lateinit var saveToAppBtn : Button
     lateinit var deleteBtn : Button
+    lateinit var accessSpinner : Spinner
 
     var cols = listOf<String>(
         ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
@@ -65,32 +68,41 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
         val view = inflater.inflate(R.layout.fragment_contacts, container, false)
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView1)
         val importRecyclerView = view.findViewById<RecyclerView>(R.id.recyclerView2)
+
         name = view.findViewById<EditText>(R.id.nameInput)
         phone = view.findViewById<EditText>(R.id.numInput)
         saveBtn = view.findViewById<Button>(R.id.saveButton)
         importBtn = view.findViewById<Button>(R.id.importButton)
         saveToAppBtn = view.findViewById<Button>(R.id.saveToAppButton)
         deleteBtn = view.findViewById<Button>(R.id.deleteButton)
+        accessSpinner = view.findViewById<Spinner>(R.id.accessSpinner)
 
         saveToAppBtn.visibility = View.INVISIBLE
         deleteBtn.visibility = View.INVISIBLE
 
+        val accessOptions: Array<String> = resources.getStringArray(R.array.recording_access_array)
+        setupSpinner(accessOptions)
+
         saveBtn.setOnClickListener {
+
             val text = name.text.split(' ')
             val firstName = text[0]
             val lastName = text[1]
             val number = phone.text.toString()
+
             if (saveBtn.text.equals("Save")) {
-                val cont = Contact(0, firstName, lastName, 0, number)
+                val cont = Contact(0, firstName, lastName, accessNum, number)
                 mContactViewModel.insertContactInfo(cont)
             } else {
-                val cont = Contact(name.getTag(name.id).toString().toInt(), firstName, lastName, 0, number)
+                val cont = Contact(name.getTag(name.id).toString().toInt(), firstName, lastName, accessNum, number)
+
                 mContactViewModel.updateContactInfo(cont)
                 saveBtn.setText("Save")
                 deleteBtn.visibility = View.INVISIBLE
             }
             name.setText("")
             phone.setText("")
+            accessSpinner.setSelection(0)
         }
 
         deleteBtn.setOnClickListener {
@@ -103,6 +115,7 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
             mContactViewModel.deleteContactInfo(cont)
             name.setText("")
             phone.setText("")
+            accessSpinner.setSelection(0)
         }
 
         importBtn.setOnClickListener {
@@ -156,6 +169,30 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
 
         }
     }
+
+    private fun setupSpinner(accessOptions : Array<String>){
+
+        val accessMap = mapOf("No recording access" to 0,"Audio recording access" to 1,
+            "Video recording access" to 2, "Audio and video recording access" to 3)
+        var accessString = ""
+
+        if (accessSpinner != null) {
+            val spinnerAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, accessOptions)
+            accessSpinner.adapter = spinnerAdapter
+
+            accessSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    accessString = accessOptions[position]
+                    accessNum = accessMap[accessString]!!
+                }
+
+                override fun onNothingSelected(p0: AdapterView<*>?) {
+                    TODO("Not yet implemented")
+                }
+            }
+        }
+    }
+
     private fun setupTracker(importRecyclerView: RecyclerView): SelectionTracker<Long> {
 
         var tracker = SelectionTracker.Builder(
