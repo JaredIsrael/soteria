@@ -38,6 +38,7 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
     lateinit var name : EditText
     lateinit var phone : EditText
     public var accessNum = 0
+    public var accessString = ""
     lateinit var saveBtn : Button
     lateinit var importBtn : Button
     lateinit var saveToAppBtn : Button
@@ -49,6 +50,11 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
         ContactsContract.CommonDataKinds.Phone.NUMBER,
         ContactsContract.CommonDataKinds.Phone._ID
     ).toTypedArray()
+
+    val accessStringToNum = mapOf("No recording access" to 0,"Audio recording access" to 1,
+        "Video recording access" to 2, "Audio and video recording access" to 3)
+    val accessNumToString = mapOf(0 to "No recording access", 1 to "Audio recording access",
+        2 to "Video recording access", 3 to "Audio and video recording access")
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -89,6 +95,7 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
             val firstName = text[0]
             val lastName = text[1]
             val number = phone.text.toString()
+            accessSpinner.setSelection()
 
             if (saveBtn.text.equals("Save")) {
                 val cont = Contact(0, firstName, lastName, accessNum, number)
@@ -172,10 +179,6 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
 
     private fun setupSpinner(accessOptions : Array<String>){
 
-        val accessMap = mapOf("No recording access" to 0,"Audio recording access" to 1,
-            "Video recording access" to 2, "Audio and video recording access" to 3)
-        var accessString = ""
-
         if (accessSpinner != null) {
             val spinnerAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, accessOptions)
             accessSpinner.adapter = spinnerAdapter
@@ -183,7 +186,7 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
             accessSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                     accessString = accessOptions[position]
-                    accessNum = accessMap[accessString]!!
+                    accessNum = accessStringToNum[accessString]!!
                 }
 
                 override fun onNothingSelected(p0: AdapterView<*>?) {
