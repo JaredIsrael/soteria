@@ -22,12 +22,4 @@
         android:layout_marginStart="10dp"
         android:id="@+id/tvNumber" />
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/deleteContactID"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="10dp" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

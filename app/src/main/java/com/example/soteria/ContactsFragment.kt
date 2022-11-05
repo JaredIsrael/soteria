@@ -133,10 +133,6 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
         return view
     }
 
-//    override fun onDeleteUserClickListener(contact: Contact) {
-//        mContactViewModel.deleteContactInfo(contact)
-//    }
-
     override fun onItemClickListener(contact: Contact) {
         name.setText(contact.first_name + " " + contact.last_name)
         phone.setText(contact.phone_number)

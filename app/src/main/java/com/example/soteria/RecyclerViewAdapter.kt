@@ -25,7 +25,6 @@ class RecyclerViewAdapter(val listener : RowClickListener): RecyclerView.Adapter
 
         holder.itemView.setOnClickListener {
             listener.onItemClickListener(items[position])
-            //listener.onDeleteUserClickListener(items[position])
         }
         holder.bind(items[position])
     }
@@ -38,20 +37,14 @@ class RecyclerViewAdapter(val listener : RowClickListener): RecyclerView.Adapter
 
         val tvName = view.findViewById<TextView>(R.id.tvName)
         val tvNumber = view.findViewById<TextView>(R.id.tvNumber)
-        val deleteContactId = view.findViewById<ImageView>(R.id.deleteContactID)
         fun bind(data: Contact) {
             tvName.text = data.first_name + " " + data.last_name
             tvNumber.text = data.phone_number
-
-//            deleteContactId.setOnClickListener {
-//                listener.onDeleteUserClickListener(data)
-//            }
         }
 
     }
 
     interface RowClickListener {
-        //fun onDeleteUserClickListener(contact : Contact)
         fun onItemClickListener(contact : Contact)
     }
 
