@@ -1,10 +1,12 @@
 package com.example.soteria
 
 import android.os.Bundle
+import android.text.method.LinkMovementMethod
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -34,7 +36,18 @@ class ResourcesFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_resources, container, false)
+        val v = inflater.inflate(R.layout.fragment_resources, container, false)
+        enableLinks(v)
+        return v
+    }
+
+    private fun enableLinks(v:View){
+        val linkTextViewHelp =  v.findViewById<TextView>(R.id.resources_help_body)
+        linkTextViewHelp.setMovementMethod(LinkMovementMethod.getInstance())
+        val linkTextViewConsent =  v.findViewById<TextView>(R.id.resources_consent_body)
+        linkTextViewConsent.setMovementMethod(LinkMovementMethod.getInstance())
+        val linkTextViewEula =  v.findViewById<TextView>(R.id.resources_eula_body)
+        linkTextViewEula.setMovementMethod(LinkMovementMethod.getInstance())
     }
 
     companion object {
