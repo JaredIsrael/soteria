@@ -95,7 +95,7 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
             val firstName = text[0]
             val lastName = text[1]
             val number = phone.text.toString()
-            accessSpinner.setSelection()
+            accessSpinner.setSelection(accessStringToNum[accessString]!!)
 
             if (saveBtn.text.equals("Save")) {
                 val cont = Contact(0, firstName, lastName, accessNum, number)
@@ -158,6 +158,7 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
         phone.setText(contact.phone_number)
         name.setTag(name.id, contact.id)
         saveBtn.setText("Update")
+        accessSpinner.setSelection(contact.recording_access)
         deleteBtn.visibility = View.VISIBLE
     }
 
