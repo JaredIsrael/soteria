@@ -5,6 +5,22 @@
     <string name="eula_accept">Accept</string>
     <string name="eula_decline">Decline</string>
     <string name="first_time">first_time</string>
+    <string name="resources_title"><u>Resources</u></string>
+    <string name="resources_consent_header"><u>Recording consent laws</u></string>
+    <string name="resources_consent_body">Every state has different laws for whether
+    or not you can record others without their consent. Please read and understand the
+    <a href="https://recordinglaw.com/party-two-party-consent-states/"> relevant recording law</a>
+    for your state, as usage of this app can violate these recording laws and you may face charges.
+    By agreeing to the EULA, you have acknowledge that you will only use this app where legal, and
+    understand developers cannot be help accountable.</string>
+    <string name="resources_help_header"><u>Getting help</u></string>
+    <string name="resources_help_body">If you are experiencing an emergency, please dial 911 immediately.
+    If you were recently attacked, pleas consider these next steps to get help and press charges:\n -
+    File a police report with your local authorities\n - Gather any additional evidence\n -
+    Reach out to loved ones for support\n - <a href="https://www.rainn.org/resources">National Sexual Assault Hotline</a>\n -
+    <a href="https://www.thehotline.org/">National Domestic Violence Hotline</a></string>
+    <string name="resources_eula_header"><u>EULA</u></string>
+    <string name="resources_eula_body">Users must agree to the EULA to use this app. You can review this EULA <a href="https://google.com">here</a>.</string>
     <string-array name="recording_access_array">
         <item>No recording access</item>
         <item>Audio recording access</item>
