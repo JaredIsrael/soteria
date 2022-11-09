@@ -1,10 +1,8 @@
 package com.example.soteria.room.daos
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.lifecycle.MutableLiveData
+import androidx.room.*
 import com.example.soteria.room.models.Contact
 
 /*
@@ -22,7 +20,7 @@ Details:
 @Dao
 interface ContactDAO {
     @Query("SELECT * FROM contact")
-    fun getAll(): LiveData<List<Contact>>
+    fun getAll(): List<Contact>?
 
     @Query("SELECT * FROM contact WHERE first_name LIKE :first AND last_name LIKE :last LIMIT 1")
     fun findByName(first: String, last: String): LiveData<Contact>
@@ -32,5 +30,9 @@ interface ContactDAO {
 
     @Delete
     fun deleteAll(vararg contacts: Contact)
+
+    @Update
+    fun updateContact(contact: Contact?)
+
 
 }
