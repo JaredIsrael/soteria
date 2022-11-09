@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.text.Editable
+import android.text.InputType
 import android.text.TextWatcher
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -25,14 +26,12 @@ class HomeFragment : Fragment(), View.OnClickListener {
 
 
     private lateinit var startBtn : Button
-    private lateinit var timeTV : TextView
     private lateinit var timer : CountDownTimer
     private lateinit var timeEditText : EditText
     private lateinit var homeTV : TextView
     private var isRunning : Boolean = false
     // this should be a setting that can change on the settings page
     private var initialTime : Long = 0
-    var currTime = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,13 +47,17 @@ class HomeFragment : Fragment(), View.OnClickListener {
 
         startBtn = view.findViewById(R.id.startBtn)
         startBtn.textSize = 24F
+        startBtn.setOnClickListener{
+            onClick(it)
+        }
 
         homeTV = view.findViewById(R.id.tvHome)
         homeTV.requestFocus()
+        
 
         timeEditText = view.findViewById(R.id.timeET)
 
-        timeEditText.setOnEditorActionListener { v, actionId, event ->
+        timeEditText.setOnEditorActionListener { v, actionId, _ ->
             return@setOnEditorActionListener when (actionId) {
                 EditorInfo.IME_ACTION_DONE -> {
                     validateTimeText()
@@ -80,6 +83,8 @@ class HomeFragment : Fragment(), View.OnClickListener {
 
         if (!text.contains(':')) {
             text = "$text:00"
+        } else if (text[0] == ':' && text.contains(':')) {
+            text = "0$text"
         }
 
         timeEditText.setText(text)
@@ -108,9 +113,11 @@ class HomeFragment : Fragment(), View.OnClickListener {
         timeEditText.isEnabled = true
         timer.cancel()
         isRunning = false
+
     }
 
     private fun startTimer(timeInMilli : Long) {
+//        timer = Timer(timeEditText, timeInMilli, 1000)
         timer = object : CountDownTimer(timeInMilli, 1000) {
             override fun onTick(p0: Long) {
                 val min = (p0 / 1000) / 60
@@ -123,8 +130,11 @@ class HomeFragment : Fragment(), View.OnClickListener {
             }
 
             override fun onFinish() {
-                timeTV.text = "Starting recording"
-                // start recording
+                timeEditText.inputType = InputType.TYPE_DATETIME_VARIATION_TIME
+                timeEditText.setText("Starting recording")
+                startBtn.text = "Recording"
+                startBtn.isEnabled = false
+                startBtn.isClickable = false
             }
 
         }
