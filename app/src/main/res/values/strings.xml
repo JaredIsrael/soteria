@@ -5,6 +5,15 @@
     <string name="eula_accept">Accept</string>
     <string name="eula_decline">Decline</string>
     <string name="first_time">first_time</string>
+    <string name="settings_title"><u>Settings</u></string>
+    <string name="recording_settings_header"><u>Recording settings</u></string>
+    <string name="test_settings_header"><u>Test</u></string>
+    <string name="trigger_settings_header"><u>Trigger settings</u></string>
+    <string name="message_settings_header"><u>Message settings</u></string>
+    <string name="record_audio_setting">Record audio on event trigger</string>
+    <string name="record_video_setting">Record video on event trigger</string>
+    <string name="trigger_setting">Event trigger type</string>
+    <string name="format_setting">Text message format</string>
     <string name="resources_title"><u>Resources</u></string>
     <string name="resources_consent_header"><u>Recording consent laws</u></string>
     <string name="resources_consent_body">Every state has different laws for whether
@@ -26,5 +35,20 @@
         <item>Audio recording access</item>
         <item>Video recording access</item>
         <item>Audio and video recording access</item>
+    </string-array>
+    <string-array name="trigger_array">
+        <item>Persistent notification</item>
+        <item>Button press (not functional)</item>
+        <item>Shake gesture (not functional)</item>
+    </string-array>
+    <string-array name="format_array">
+        <item>A</item>
+        <item>B</item>
+        <item>C</item>
+    </string-array>
+    <string-array name="message_array">
+        <item>I\m feeling unsafe right now ... </item>
+        <item>I need help right now ... </item>
+        <item>I triggered a saftey app ... </item>
     </string-array>
 </resources>
