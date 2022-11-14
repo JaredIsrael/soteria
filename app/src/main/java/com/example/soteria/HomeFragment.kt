@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.os.Build
 import android.os.Bundle
@@ -20,14 +21,18 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.io.File
+import java.nio.file.Paths
 import java.util.*
 
 
@@ -38,21 +43,23 @@ import java.util.*
  */
 class HomeFragment : Fragment(), View.OnClickListener {
 
-
     private lateinit var startBtn : Button
     private lateinit var timer : CountDownTimer
     private lateinit var timeEditText : EditText
     private lateinit var homeTV : TextView
     private lateinit var output: String
     private lateinit var mediaRecorder: MediaRecorder
+    private lateinit var mediaPlayer: MediaPlayer
     private var isRunning : Boolean = false
     // this should be a setting that can change on the settings page
     private var initialTime : Long = 0
+    private lateinit var audioPath : String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -66,12 +73,12 @@ class HomeFragment : Fragment(), View.OnClickListener {
             MediaRecorder()
         }
         checkAndAskPermissions()
-        output = Environment.getExternalStorageDirectory().absolutePath + "/recording.mp3"
 
+        audioPath = requireContext().getExternalFilesDir(null).toString() + "/recording.mp3"
         mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
         mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
         mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-        mediaRecorder?.setOutputFile(output)
+        mediaRecorder?.setOutputFile(audioPath)
 
         startBtn = view.findViewById(R.id.startBtn)
         startBtn.textSize = 24F
@@ -162,8 +169,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
                 startBtn.isEnabled = false
                 startBtn.isClickable = false
                 startAudioRecording()
-                Thread.sleep(2000L)
-                stopAudioRecording()
+                startRecordingTimer()
             }
 
         }
@@ -171,6 +177,24 @@ class HomeFragment : Fragment(), View.OnClickListener {
         isRunning = true
         timeEditText.isEnabled = false
         startBtn.text = "Stop"
+    }
+
+    fun startRecordingTimer() = runBlocking {
+        launch {
+            delay(2000)
+            stopAudioRecording()
+            playAudio()
+        }
+//        val timer = object: CountDownTimer(20000, 1000) {
+//            override fun onTick(millisUntilFinished: Long) {
+//                TODO("Not yet implemented")
+//            }
+//
+//            override fun onFinish() {
+//                stopAudioRecording()
+//            }
+//        }
+//        timer.start()
     }
 
     fun startAudioRecording() {
@@ -181,6 +205,15 @@ class HomeFragment : Fragment(), View.OnClickListener {
     fun stopAudioRecording() {
         mediaRecorder.stop()
         mediaRecorder.release()
+        Toast.makeText(requireContext(), "recording stopped", Toast.LENGTH_SHORT).show()
+    }
+
+    fun playAudio() {
+        Toast.makeText(requireContext(), "recording playing", Toast.LENGTH_SHORT).show()
+        mediaPlayer = MediaPlayer()
+        mediaPlayer?.setDataSource(audioPath)
+        mediaPlayer?.prepare()
+        mediaPlayer?.start()
     }
 
     fun startRecording(view: View) {
@@ -206,6 +239,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
             }
         }
 
+    // Move into and finish PermissionHelper class
     private val requestPermissionsLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
             permissions ->
         permissions.entries.forEach {
@@ -246,4 +280,6 @@ class HomeFragment : Fragment(), View.OnClickListener {
     private fun hasPermissions(context: Context, permissions: Array<String>): Boolean = permissions.all {
         ActivityCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
     }
+
+
 }
