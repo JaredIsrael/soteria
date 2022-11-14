@@ -42,6 +42,7 @@ dependencies {
     implementation 'androidx.navigation:navigation-dynamic-features-fragment:2.5.2'
     implementation("androidx.room:room-runtime:2.4.3")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation 'androidx.camera:camera-video:1.1.0-beta02'
     kapt 'androidx.room:room-compiler:2.4.3'
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.5.1'

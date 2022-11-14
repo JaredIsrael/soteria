@@ -1,12 +1,17 @@
 package com.example.soteria
 
+import android.Manifest
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.media.MediaRecorder
+import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
-import android.text.Editable
+import android.os.Environment
+import android.provider.MediaStore
 import android.text.InputType
-import android.text.TextWatcher
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +20,15 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
+import androidx.core.content.FileProvider
+import androidx.fragment.app.Fragment
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import java.io.File
+import java.util.*
 
 
 /**
@@ -29,13 +43,14 @@ class HomeFragment : Fragment(), View.OnClickListener {
     private lateinit var timer : CountDownTimer
     private lateinit var timeEditText : EditText
     private lateinit var homeTV : TextView
+    private lateinit var output: String
+    private lateinit var mediaRecorder: MediaRecorder
     private var isRunning : Boolean = false
     // this should be a setting that can change on the settings page
     private var initialTime : Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
     }
 
     override fun onCreateView(
@@ -45,6 +60,19 @@ class HomeFragment : Fragment(), View.OnClickListener {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_home, container, false)
 
+        mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            MediaRecorder(requireContext())
+        } else {
+            MediaRecorder()
+        }
+        checkAndAskPermissions()
+        output = Environment.getExternalStorageDirectory().absolutePath + "/recording.mp3"
+
+        mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
+        mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+        mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+        mediaRecorder?.setOutputFile(output)
+
         startBtn = view.findViewById(R.id.startBtn)
         startBtn.textSize = 24F
         startBtn.setOnClickListener{
@@ -53,10 +81,8 @@ class HomeFragment : Fragment(), View.OnClickListener {
 
         homeTV = view.findViewById(R.id.tvHome)
         homeTV.requestFocus()
-        
 
         timeEditText = view.findViewById(R.id.timeET)
-
         timeEditText.setOnEditorActionListener { v, actionId, _ ->
             return@setOnEditorActionListener when (actionId) {
                 EditorInfo.IME_ACTION_DONE -> {
@@ -135,6 +161,9 @@ class HomeFragment : Fragment(), View.OnClickListener {
                 startBtn.text = "Recording"
                 startBtn.isEnabled = false
                 startBtn.isClickable = false
+                startAudioRecording()
+                Thread.sleep(2000L)
+                stopAudioRecording()
             }
 
         }
@@ -144,4 +173,77 @@ class HomeFragment : Fragment(), View.OnClickListener {
         startBtn.text = "Stop"
     }
 
+    fun startAudioRecording() {
+        mediaRecorder.prepare()
+        mediaRecorder.start()
+    }
+
+    fun stopAudioRecording() {
+        mediaRecorder.stop()
+        mediaRecorder.release()
+    }
+
+    fun startRecording(view: View) {
+        val intent = Intent(MediaStore.ACTION_VIDEO_CAPTURE)
+        val pm : PackageManager
+        startActivity(intent)
+    }
+
+    fun getImage() {
+        val root =
+            File(Environment.getExternalStorageDirectory(), BuildConfig.APPLICATION_ID + File.separator)
+        root.mkdirs()
+        val fname = "img_" + System.currentTimeMillis() + ".jpg"
+        val sdImageMainDirectory = File(root, fname)
+        val imageUri = FileProvider.getUriForFile(requireContext(), context?.applicationContext?.packageName + ".provider", sdImageMainDirectory)
+        getImage.launch(imageUri)
+    }
+
+    private val getImage =
+        registerForActivityResult(ActivityResultContracts.TakePicture()) { success: Boolean ->
+            if (success){
+                Log.d("HomeFragment","Captured")
+            }
+        }
+
+    private val requestPermissionsLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+            permissions ->
+        permissions.entries.forEach {
+            Log.d("DEBUG", "${it.key} = ${it.value}")
+        }
+
+    }
+
+    /*
+    Name: checkAndAskPermission():
+    Description: Check for each permission in the list and if any are missing, ask for them
+    (Android will only ask the user for the specific missing permissions)
+     */
+    fun checkAndAskPermissions() {
+        Log.d(MainActivity.TAG, "Checking permissions")
+
+        val permissionsList = arrayOf(
+            Manifest.permission.SEND_SMS,
+            Manifest.permission.CAMERA,
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.READ_CONTACTS,
+            Manifest.permission.READ_PHONE_NUMBERS,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.POST_NOTIFICATIONS)
+
+        if (!hasPermissions(requireContext(), permissionsList)) {
+            requestPermissionsLauncher.launch(permissionsList)
+        }
+    }
+
+    /*
+    Name: hasPermissions():
+    Description: Helper function to quickly check if all permissions are granted or if 1 or more are missing
+     */
+    private fun hasPermissions(context: Context, permissions: Array<String>): Boolean = permissions.all {
+        ActivityCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+    }
 }

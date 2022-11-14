@@ -94,7 +94,7 @@ class MainActivity : AppCompatActivity() {
         return prefs[dataStoreKey]
     }
 
-    private suspend fun checkIfFirstTime() {
+    public suspend fun checkIfFirstTime() {
 
         withContext(Dispatchers.IO) {
             val firsTimeKey = booleanPreferencesKey(resources.getString(R.string.first_time))
