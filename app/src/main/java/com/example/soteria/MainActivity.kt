@@ -77,9 +77,6 @@ class MainActivity : AppCompatActivity() {
         bnv.setupWithNavController(navController)
 
         GlobalScope.launch { checkIfFirstTime() }
-        
-
-        Log.d(TAG,"Entered the on resume lifecycle stage.")
     }
 
     public suspend fun writeBoolToDatastore(key: String, value: Boolean){

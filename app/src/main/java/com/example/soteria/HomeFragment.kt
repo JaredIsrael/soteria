@@ -1,6 +1,7 @@
 package com.example.soteria
 
 import android.Manifest
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -11,6 +12,7 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Environment
 import android.provider.MediaStore
+import android.telephony.SmsManager
 import android.text.InputType
 import android.util.Log
 import android.view.LayoutInflater
@@ -26,7 +28,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
+import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import com.example.soteria.room.viewmodels.ContactViewModel
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -50,10 +55,14 @@ class HomeFragment : Fragment(), View.OnClickListener {
     private lateinit var output: String
     private lateinit var mediaRecorder: MediaRecorder
     private lateinit var mediaPlayer: MediaPlayer
+    private lateinit var smsManager: SmsManager
+    private val mContactViewModel : ContactViewModel by viewModels()
     private var isRunning : Boolean = false
     // this should be a setting that can change on the settings page
     private var initialTime : Long = 0
     private lateinit var audioPath : String
+
+    val message = "test message"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -168,8 +177,15 @@ class HomeFragment : Fragment(), View.OnClickListener {
                 startBtn.text = "Recording"
                 startBtn.isEnabled = false
                 startBtn.isClickable = false
+
                 startAudioRecording()
+                Toast.makeText(requireContext(), "recording started", Toast.LENGTH_SHORT).show()
                 startRecordingTimer()
+                val contactsList = mContactViewModel.getAllContactsList()
+
+                for (contact in contactsList) {
+                    sendMessage(contact.phone_number)
+                }
             }
 
         }
@@ -179,22 +195,25 @@ class HomeFragment : Fragment(), View.OnClickListener {
         startBtn.text = "Stop"
     }
 
+    fun sendMessage(phoneNumber : String) {
+        val sentPI: PendingIntent = PendingIntent.getBroadcast(requireContext(), 0, Intent("SMS_SENT"), 0)
+        smsManager = SmsManager.getDefault()
+        // idk why this doesn't work
+//        if (Build.VERSION.SDK_INT>=23) {
+//            requireContext().getSystemService(SmsManager::class.java)
+//        } else{
+//            SmsManager.getDefault()
+//        }
+        smsManager.sendTextMessage(phoneNumber, null, message, sentPI, null)
+        Toast.makeText(requireContext(), "message sent", Toast.LENGTH_SHORT).show()
+    }
+
     fun startRecordingTimer() = runBlocking {
         launch {
-            delay(2000)
+            delay(5000)
             stopAudioRecording()
             playAudio()
         }
-//        val timer = object: CountDownTimer(20000, 1000) {
-//            override fun onTick(millisUntilFinished: Long) {
-//                TODO("Not yet implemented")
-//            }
-//
-//            override fun onFinish() {
-//                stopAudioRecording()
-//            }
-//        }
-//        timer.start()
     }
 
     fun startAudioRecording() {
@@ -216,28 +235,28 @@ class HomeFragment : Fragment(), View.OnClickListener {
         mediaPlayer?.start()
     }
 
-    fun startRecording(view: View) {
-        val intent = Intent(MediaStore.ACTION_VIDEO_CAPTURE)
-        val pm : PackageManager
-        startActivity(intent)
-    }
-
-    fun getImage() {
-        val root =
-            File(Environment.getExternalStorageDirectory(), BuildConfig.APPLICATION_ID + File.separator)
-        root.mkdirs()
-        val fname = "img_" + System.currentTimeMillis() + ".jpg"
-        val sdImageMainDirectory = File(root, fname)
-        val imageUri = FileProvider.getUriForFile(requireContext(), context?.applicationContext?.packageName + ".provider", sdImageMainDirectory)
-        getImage.launch(imageUri)
-    }
-
-    private val getImage =
-        registerForActivityResult(ActivityResultContracts.TakePicture()) { success: Boolean ->
-            if (success){
-                Log.d("HomeFragment","Captured")
-            }
-        }
+//    fun startRecording(view: View) {
+//        val intent = Intent(MediaStore.ACTION_VIDEO_CAPTURE)
+//        val pm : PackageManager
+//        startActivity(intent)
+//    }
+//
+//    fun getImage() {
+//        val root =
+//            File(Environment.getExternalStorageDirectory(), BuildConfig.APPLICATION_ID + File.separator)
+//        root.mkdirs()
+//        val fname = "img_" + System.currentTimeMillis() + ".jpg"
+//        val sdImageMainDirectory = File(root, fname)
+//        val imageUri = FileProvider.getUriForFile(requireContext(), context?.applicationContext?.packageName + ".provider", sdImageMainDirectory)
+//        getImage.launch(imageUri)
+//    }
+//
+//    private val getImage =
+//        registerForActivityResult(ActivityResultContracts.TakePicture()) { success: Boolean ->
+//            if (success){
+//                Log.d("HomeFragment","Captured")
+//            }
+//        }
 
     // Move into and finish PermissionHelper class
     private val requestPermissionsLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
