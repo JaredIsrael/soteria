@@ -21,6 +21,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
@@ -92,11 +93,25 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    public suspend fun writeStringToDatastore(key: String, value: String){
+        val dataStoreKey = stringPreferencesKey(key)
+        dataStore.edit { settings ->
+            settings[dataStoreKey] = value
+        }
+    }
+
     public suspend fun readBoolFromDatastore(key: String): Boolean? {
         val dataStoreKey = booleanPreferencesKey(key)
         val prefs = dataStore.data.first()
         return prefs[dataStoreKey]
     }
+
+    public suspend fun readStringFromDatastore(key: String): String? {
+        val dataStoreKey = stringPreferencesKey(key)
+        val prefs = dataStore.data.first()
+        return prefs[dataStoreKey]
+    }
+
 
     private suspend fun checkIfFirstTime() {
 
