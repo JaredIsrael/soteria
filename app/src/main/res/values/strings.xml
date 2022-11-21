@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Soteria</string>
+    <string name="channel_name">Soteria Default Notification</string>
+    <string name="channel_description">Default Notification</string>
     <string name="org">com.android.soteria</string>
     <string name="eula">eula</string>
     <string name="eula_accept">Accept</string>

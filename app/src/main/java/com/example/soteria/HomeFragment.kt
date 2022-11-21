@@ -9,12 +9,22 @@ import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.os.Build
 import android.os.Bundle
-import android.os.CountDownTimer
 import android.os.Environment
 import android.provider.MediaStore
 import android.telephony.SmsManager
 import android.text.InputType
 import android.util.Log
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.TimePickerDialog
+import android.content.BroadcastReceiver
+import android.content.IntentFilter
+import android.icu.text.SimpleDateFormat
+import android.location.Geocoder
+import android.location.LocationManager
+import android.os.CountDownTimer
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,10 +38,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
+<<<<<<< HEAD
 import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.soteria.room.viewmodels.ContactViewModel
+=======
+>>>>>>> record_audio
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -39,14 +52,23 @@ import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.nio.file.Paths
 import java.util.*
-
+import android.widget.TimePicker
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.getSystemService
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
+import com.example.soteria.room.viewmodels.HomeViewModel
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 
 /**
  * A simple [Fragment] subclass.
  * Use the [HomeFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class HomeFragment : Fragment(), View.OnClickListener {
+
+class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSetListener {
 
     private lateinit var startBtn : Button
     private lateinit var timer : CountDownTimer
@@ -63,9 +85,39 @@ class HomeFragment : Fragment(), View.OnClickListener {
     private lateinit var audioPath : String
 
     val message = "test message"
+    private val homeModel : HomeViewModel by viewModels()
+    private val timerRec = TimerReceiver()
+    private lateinit var setTimeBtn : Button
+    private lateinit var homeTv : TextView
+    private lateinit var timeTv : TextView
+    private lateinit var notificationBuilder : NotificationCompat.Builder
+
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+
+    companion object {
+        const val TAG = "HomeFragment"
+        const val CHANNEL_ID = "DefaultNotification"
+        const val ACTION_START_RECORDING = "com.example.soteria.ACTION_START_RECORDING"
+        const val ACTION_STOP_TIMER = "com.example.soteria.ACTION_STOP_TIMER"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        activity?.registerReceiver(timerRec, IntentFilter(TimerService.ACTION_TICK))
+        activity?.registerReceiver(timerRec, IntentFilter(TimerService.ACTION_FINISHED))
+        activity?.registerReceiver(timerRec, IntentFilter(ACTION_STOP_TIMER))
+        activity?.registerReceiver(timerRec, IntentFilter(ACTION_START_RECORDING))
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
+
         super.onCreate(savedInstanceState)
+    }
+
+    override fun onDestroy() {
+        activity?.unregisterReceiver(timerRec)
+        with (NotificationManagerCompat.from(requireContext())) {
+            cancel(1)
+        }
+        super.onDestroy()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -73,7 +125,6 @@ class HomeFragment : Fragment(), View.OnClickListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_home, container, false)
 
         mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -83,32 +134,31 @@ class HomeFragment : Fragment(), View.OnClickListener {
         }
         checkAndAskPermissions()
 
-        audioPath = requireContext().getExternalFilesDir(null).toString() + "/recording.mp3"
+        val sdf = SimpleDateFormat("yyyy_M_dd_hh_mm_ss")
+        val currentDate = sdf.format(Date())
+
+        audioPath = requireContext().getExternalFilesDir(null).toString() + "/" + currentDate + "_soteria_recording.mp3"
+        var lastPath = audioPath
+
         mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
         mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
         mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
         mediaRecorder?.setOutputFile(audioPath)
 
+        setTimeBtn = view.findViewById(R.id.setTimeBtn)
+        setTimeBtn.setOnClickListener(this)
+        timeTv = view.findViewById(R.id.timeTv)
+
         startBtn = view.findViewById(R.id.startBtn)
         startBtn.textSize = 24F
-        startBtn.setOnClickListener{
-            onClick(it)
-        }
+        startBtn.setOnClickListener(this)
 
         homeTV = view.findViewById(R.id.tvHome)
         homeTV.requestFocus()
 
-        timeEditText = view.findViewById(R.id.timeET)
-        timeEditText.setOnEditorActionListener { v, actionId, _ ->
-            return@setOnEditorActionListener when (actionId) {
-                EditorInfo.IME_ACTION_DONE -> {
-                    validateTimeText()
-                    val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                    imm.hideSoftInputFromWindow(v.windowToken, 0)
-                    true
-                }
-                else -> false
-            }
+        if (homeModel.timerRunning) {
+            setTimeBtn.text = "Start Recording"
+            startBtn.text = "Stop"
         }
 
         return view
@@ -117,82 +167,151 @@ class HomeFragment : Fragment(), View.OnClickListener {
     override fun onClick(v: View) {
         when (v.id) {
             R.id.startBtn -> startBtnClicked()
+            R.id.setTimeBtn -> setTimeBtnClicked()
         }
     }
 
-    private fun validateTimeText() {
-        var text = timeEditText.text.toString()
-
-        if (!text.contains(':')) {
-            text = "$text:00"
-        } else if (text[0] == ':' && text.contains(':')) {
-            text = "0$text"
+    private fun setTimeBtnClicked() {
+        if (homeModel.timerRunning) {
+            // do recording stuff here
+        } else {
+            openTimePickerDialog()
         }
+    }
 
-        timeEditText.setText(text)
-        homeTV.requestFocus()
+    private fun openTimePickerDialog() {
+        val hourMin = getTimeFromTv()
+        val timePicker = TimePickerDialog(context, this, hourMin[0].toInt(), hourMin[1].toInt(), true)
+        timePicker.show()
+    }
 
+    private fun getTimeFromTv() : LongArray {
+        val arr = LongArray(3)
+
+        val timeText = timeTv.text.toString()
+        val firstColon = timeText.indexOf(':')
+        arr[0] = timeText.substring(0, firstColon).toLong()
+        val secondColon = timeText.indexOf(':', firstColon + 1)
+        arr[1] = timeText.substring(firstColon + 1, secondColon).toLong()
+        arr[2] = timeText.substring(secondColon + 1).toLong()
+        return arr
     }
 
     private fun startBtnClicked() {
-        if (isRunning) {
+        if (homeModel.timerRunning) {
             stopTimer()
         } else {
-            initialTime = getStartTime()
-            startTimer(initialTime)
+            val time = getTimeFromTv()
+            // hours to ms
+            time[0] = time[0] * 3600000
+            // min to ms
+            time[1] = time[1] * 60000
+            // sec to ms
+            time[2] = time[2] * 1000
+            startTimer(time)
         }
     }
 
-    private fun getStartTime() : Long {
-        val time = timeEditText.text.toString()
-        val min = time.substring(0, time.indexOf(':')).toLong() * 60000
-        val sec = time.substring(time.indexOf(':')+ 1).toLong() * 1000
-        return min + sec
-    }
 
     private fun stopTimer() {
+        activity?.stopService(Intent(context, TimerService::class.java))
+        homeModel.timerRunning = false
+        timeTv.text = "00:30:00"
+        setTimeBtn.text = "Set Time"
         startBtn.text = "Start"
-        timeEditText.isEnabled = true
-        timer.cancel()
-        isRunning = false
-
+        with (NotificationManagerCompat.from(requireContext())) {
+            cancel(1)
+        }
     }
 
-    private fun startTimer(timeInMilli : Long) {
-//        timer = Timer(timeEditText, timeInMilli, 1000)
-        timer = object : CountDownTimer(timeInMilli, 1000) {
-            override fun onTick(p0: Long) {
-                val min = (p0 / 1000) / 60
-                var sec = ((p0 / 1000) % 60).toString()
-
-                if (sec.toLong() < 10) {
-                    sec = "0$sec"
-                }
-                timeEditText.setText("$min:$sec")
-            }
-
-            override fun onFinish() {
-                timeEditText.inputType = InputType.TYPE_DATETIME_VARIATION_TIME
-                timeEditText.setText("Starting recording")
-                startBtn.text = "Recording"
-                startBtn.isEnabled = false
-                startBtn.isClickable = false
-
-                startAudioRecording()
-                Toast.makeText(requireContext(), "recording started", Toast.LENGTH_SHORT).show()
-                startRecordingTimer()
-                val contactsList = mContactViewModel.getAllContactsList()
-
-                for (contact in contactsList) {
-                    sendMessage(contact.phone_number)
-                }
-            }
-
-        }
-        timer.start()
-        isRunning = true
-        timeEditText.isEnabled = false
+    private fun startTimer(time : LongArray) {
+        homeModel.timerRunning = true
+        setTimeBtn.text = "Start Recording"
+        val intent = Intent(context, TimerService::class.java)
+        intent.putExtra("hour", time[0])
+        intent.putExtra("min", time[1])
+        activity?.startService(intent)
+        createNotification()
         startBtn.text = "Stop"
+    }
+
+    private fun createNotification() {
+        val launchActivityIntent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT
+        }
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, launchActivityIntent, PendingIntent.FLAG_IMMUTABLE)
+
+        val startRecordingIntent = Intent(ACTION_START_RECORDING)
+        val startRecordPendingIntent: PendingIntent = PendingIntent.getBroadcast(context,0, startRecordingIntent,PendingIntent.FLAG_IMMUTABLE)
+
+        val stopTimerIntent = Intent(ACTION_STOP_TIMER)
+        val stopTimerPendingIntent: PendingIntent = PendingIntent.getBroadcast(context, 0, stopTimerIntent, PendingIntent.FLAG_IMMUTABLE)
+
+        notificationBuilder = NotificationCompat.Builder(requireContext(), CHANNEL_ID)
+            .setSmallIcon(R.drawable.notification_icon)
+            .setContentTitle("Soteria Safety Notification")
+            .setContentText("Press start to start recording")
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(pendingIntent)
+            .addAction(0, "Start Recording", startRecordPendingIntent)
+            .addAction(0, "Stop Timer", stopTimerPendingIntent)
+
+        with(NotificationManagerCompat.from(requireContext())) {
+            notify(1, notificationBuilder.build())
+        }
+    }
+
+//    val contactsList = mContactViewModel.getAllContactsList()
+//
+//    for (contact in contactsList) {
+//        sendMessage(contact.phone_number)
+    override fun onTimeSet(view: TimePicker?, hourOfDay: Int, minute: Int) {
+        val time: String = when (hourOfDay) {
+            0 -> {
+                if (minute < 10) {
+                    "00:0$minute:00"
+                } else {
+                    "00:$minute:00"
+                }
+            }
+
+            else -> {
+                if (minute < 10) {
+                    "$hourOfDay:0$minute:00"
+                } else {
+                    "$hourOfDay:$minute:00"
+                }
+            }
+        }
+        timeTv.text = time
+    }
+
+    private fun timerFinished() {
+        recordAudio()
+    }
+
+
+    private fun updateTimeTv(timeLeft: Long) {
+        val hLeft = timeLeft / 3600000 % 24
+        var mLeft = (timeLeft / 60000 % 60).toString()
+        var sLeft = (timeLeft / 1000 % 60).toString()
+
+        mLeft = "$mLeft"
+        if (mLeft.toInt() < 10) {
+            mLeft = "0$mLeft"
+        }
+        sLeft = "$sLeft"
+        if (sLeft.toInt() < 10) {
+            sLeft = "0$sLeft"
+        }
+
+        val time = "$hLeft:$mLeft:$sLeft"
+
+        timeTv.text = time
+        notificationBuilder.setContentText("Time Left: $time | Expand for options")
+        with (NotificationManagerCompat.from(requireContext())) {
+            notify(1, notificationBuilder.build())
+        }
     }
 
     fun sendMessage(phoneNumber : String) {
@@ -208,8 +327,26 @@ class HomeFragment : Fragment(), View.OnClickListener {
         Toast.makeText(requireContext(), "message sent", Toast.LENGTH_SHORT).show()
     }
 
-    fun startRecordingTimer() = runBlocking {
+
+    private inner class TimerReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent == null) return
+
+            when (intent.action) {
+                TimerService.ACTION_TICK -> {
+                    intent.extras?.let { updateTimeTv(it.getLong(TimerService.TIME_LEFT_KEY,0)) }
+                }
+                TimerService.ACTION_FINISHED -> timerFinished()
+                ACTION_START_RECORDING -> timerFinished() // assume there will be some method for starting to record
+                ACTION_STOP_TIMER -> stopTimer()
+            }
+        }
+
+    }
+
+    fun recordAudio() = runBlocking {
         launch {
+            startAudioRecording()
             delay(5000)
             stopAudioRecording()
             playAudio()
@@ -219,6 +356,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
     fun startAudioRecording() {
         mediaRecorder.prepare()
         mediaRecorder.start()
+        Toast.makeText(requireContext(), "recording started", Toast.LENGTH_SHORT).show()
     }
 
     fun stopAudioRecording() {
@@ -257,6 +395,33 @@ class HomeFragment : Fragment(), View.OnClickListener {
 //                Log.d("HomeFragment","Captured")
 //            }
 //        }
+    private fun getLastLocation() {
+        fusedLocationClient?.lastLocation!!.addOnCompleteListener(this) { task ->
+            if (task.isSuccessful && task.result != null) {
+                lastLocation = task.result
+                latitudeText!!.text = latitudeLabel + ": " + (lastLocation)!!.latitude
+                longitudeText!!.text = longitudeLabel + ": " + (lastLocation)!!.longitude
+            }
+            else {
+                Log.w(TAG, "getLastLocation:exception", task.exception)
+                showMessage("No location detected. Make sure location is enabled on the device.")
+            }
+        }
+    }
+
+    private fun getAddress(lat: Double,long: Double):String{
+        var cityName: String?
+        val geoCoder = Geocoder(requireContext(), Locale.getDefault())
+        val address = geoCoder.getFromLocation(lat,long,1)
+        cityName = address?.get(0)?.adminArea
+//        if (cityName == null){
+//            cityName = address?.get(0)!!.locality
+//            if (cityName == null){
+//                cityName = address[0].subAdminArea
+//            }
+//        }
+        return cityName!!
+    }
 
     // Move into and finish PermissionHelper class
     private val requestPermissionsLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
@@ -299,6 +464,5 @@ class HomeFragment : Fragment(), View.OnClickListener {
     private fun hasPermissions(context: Context, permissions: Array<String>): Boolean = permissions.all {
         ActivityCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
     }
-
 
 }
