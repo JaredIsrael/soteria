@@ -103,7 +103,6 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_home, container, false)
 
         mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -257,11 +256,8 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
     }
 
     private fun timerFinished() {
-        startAudioRecording()
-        startRecordingTimer()
-
+        recordAudio()
     }
-
 
 
     private fun updateTimeTv(timeLeft: Long) {
@@ -303,27 +299,20 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
         }
 
     }
-    fun startRecordingTimer() = runBlocking {
+
+    fun recordAudio() = runBlocking {
         launch {
-            delay(2000)
+            startAudioRecording()
+            delay(5000)
             stopAudioRecording()
             playAudio()
         }
-//        val timer = object: CountDownTimer(20000, 1000) {
-//            override fun onTick(millisUntilFinished: Long) {
-//                TODO("Not yet implemented")
-//            }
-//
-//            override fun onFinish() {
-//                stopAudioRecording()
-//            }
-//        }
-//        timer.start()
     }
 
     fun startAudioRecording() {
         mediaRecorder.prepare()
         mediaRecorder.start()
+        Toast.makeText(requireContext(), "recording started", Toast.LENGTH_SHORT).show()
     }
 
     fun stopAudioRecording() {
@@ -339,29 +328,6 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
         mediaPlayer?.prepare()
         mediaPlayer?.start()
     }
-
-    fun startRecording(view: View) {
-        val intent = Intent(MediaStore.ACTION_VIDEO_CAPTURE)
-        val pm : PackageManager
-        startActivity(intent)
-    }
-
-    fun getImage() {
-        val root =
-            File(Environment.getExternalStorageDirectory(), BuildConfig.APPLICATION_ID + File.separator)
-        root.mkdirs()
-        val fname = "img_" + System.currentTimeMillis() + ".jpg"
-        val sdImageMainDirectory = File(root, fname)
-        val imageUri = FileProvider.getUriForFile(requireContext(), context?.applicationContext?.packageName + ".provider", sdImageMainDirectory)
-        getImage.launch(imageUri)
-    }
-
-    private val getImage =
-        registerForActivityResult(ActivityResultContracts.TakePicture()) { success: Boolean ->
-            if (success){
-                Log.d("HomeFragment","Captured")
-            }
-        }
 
     // Move into and finish PermissionHelper class
     private val requestPermissionsLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
