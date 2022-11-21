@@ -1,7 +1,7 @@
 package com.example.soteria
 
 import android.Manifest
-import android.app.PendingIntent
+import
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -24,7 +24,7 @@ import android.icu.text.SimpleDateFormat
 import android.location.Geocoder
 import android.location.LocationManager
 import android.os.CountDownTimer
-import androidx.fragment.app.Fragment
+
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -38,13 +38,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
-<<<<<<< HEAD
 import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.soteria.room.viewmodels.ContactViewModel
-=======
->>>>>>> record_audio
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
