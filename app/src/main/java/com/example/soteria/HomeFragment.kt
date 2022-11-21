@@ -18,6 +18,9 @@ import android.app.PendingIntent
 import android.app.TimePickerDialog
 import android.content.BroadcastReceiver
 import android.content.IntentFilter
+import android.icu.text.SimpleDateFormat
+import android.location.Geocoder
+import android.location.LocationManager
 import android.os.CountDownTimer
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -47,6 +50,8 @@ import androidx.core.content.getSystemService
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import com.example.soteria.room.viewmodels.HomeViewModel
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 
 /**
  * A simple [Fragment] subclass.
@@ -75,6 +80,8 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
     private lateinit var timeTv : TextView
     private lateinit var notificationBuilder : NotificationCompat.Builder
 
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+
     companion object {
         const val TAG = "HomeFragment"
         const val CHANNEL_ID = "DefaultNotification"
@@ -87,6 +94,9 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
         activity?.registerReceiver(timerRec, IntentFilter(TimerService.ACTION_FINISHED))
         activity?.registerReceiver(timerRec, IntentFilter(ACTION_STOP_TIMER))
         activity?.registerReceiver(timerRec, IntentFilter(ACTION_START_RECORDING))
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
+
         super.onCreate(savedInstanceState)
     }
 
@@ -112,7 +122,12 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
         }
         checkAndAskPermissions()
 
-        audioPath = requireContext().getExternalFilesDir(null).toString() + "/recording.mp3"
+        val sdf = SimpleDateFormat("yyyy_M_dd_hh_mm_ss")
+        val currentDate = sdf.format(Date())
+
+        audioPath = requireContext().getExternalFilesDir(null).toString() + "/" + currentDate + "_soteria_recording.mp3"
+        var lastPath = audioPath
+
         mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
         mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
         mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
@@ -327,6 +342,34 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
         mediaPlayer?.setDataSource(audioPath)
         mediaPlayer?.prepare()
         mediaPlayer?.start()
+    }
+
+    private fun getLastLocation() {
+        fusedLocationClient?.lastLocation!!.addOnCompleteListener(this) { task ->
+            if (task.isSuccessful && task.result != null) {
+                lastLocation = task.result
+                latitudeText!!.text = latitudeLabel + ": " + (lastLocation)!!.latitude
+                longitudeText!!.text = longitudeLabel + ": " + (lastLocation)!!.longitude
+            }
+            else {
+                Log.w(TAG, "getLastLocation:exception", task.exception)
+                showMessage("No location detected. Make sure location is enabled on the device.")
+            }
+        }
+    }
+
+    private fun getAddress(lat: Double,long: Double):String{
+        var cityName: String?
+        val geoCoder = Geocoder(requireContext(), Locale.getDefault())
+        val address = geoCoder.getFromLocation(lat,long,1)
+        cityName = address?.get(0)?.adminArea
+//        if (cityName == null){
+//            cityName = address?.get(0)!!.locality
+//            if (cityName == null){
+//                cityName = address[0].subAdminArea
+//            }
+//        }
+        return cityName!!
     }
 
     // Move into and finish PermissionHelper class
