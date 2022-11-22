@@ -33,6 +33,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.amplifyframework.core.Amplify
+import com.amplifyframework.storage.StorageAccessLevel
+import com.amplifyframework.storage.options.StorageGetUrlOptions
 import com.example.soteria.room.viewmodels.ContactViewModel
 import com.example.soteria.room.viewmodels.HomeViewModel
 import com.google.android.gms.common.api.ApiException
@@ -277,7 +279,6 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
     }
 
     private fun timerFinished() {
-        getPlacesLocation()
         recordAudio()
     }
 
@@ -305,7 +306,7 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
         }
     }
 
-    fun sendMessage(phoneNumber : String, results : Array<String>) {
+    fun sendMessage(url:String, phoneNumber : String, results : Array<String>) {
         val sentPI: PendingIntent = PendingIntent.getBroadcast(requireContext(), 0, Intent("SMS_SENT"), 0)
         smsManager = SmsManager.getDefault()
         // idk why this doesn't work
@@ -320,6 +321,10 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
         var placeTypes = results[2]
         message = "$message, place name: $placeName, place address: $placeAddress, place types: $placeTypes"
         smsManager.sendTextMessage(phoneNumber, null, message, sentPI, null)
+
+        val urlMessage = "URL to download recording: "+url;
+        smsManager.sendTextMessage(phoneNumber, null, urlMessage, sentPI, null)
+
         Toast.makeText(requireContext(), "message sent", Toast.LENGTH_SHORT).show()
 
     }
@@ -361,9 +366,12 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
         mediaRecorder.release()
         val recordingFile = File(requireContext().getExternalFilesDir(null).toString() + "/recording.mp3")
         Amplify.Storage.uploadFile("RecordingFile.mp3", recordingFile,
-            { Log.i("MyAmplifyApp", "Successfully uploaded: ${it.key}") },
+            { Log.i("MyAmplifyApp", "Successfully uploaded: ${it.key}")
+            getPlacesLocation()
+            },
             { Log.e("MyAmplifyApp", "Upload failed", it) }
         )
+
         Toast.makeText(requireContext(), "recording stopped", Toast.LENGTH_SHORT).show()
     }
 
@@ -404,9 +412,20 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
                 }
             }
             val contactsList = mContactViewModel.getAllContactsList()
-            for (contact in contactsList) {
-                sendMessage(contact.phone_number, results)
-            }
+            val optionsBuilder = StorageGetUrlOptions.builder()
+            optionsBuilder.accessLevel(StorageAccessLevel.PUBLIC)
+
+            val options:StorageGetUrlOptions = optionsBuilder.build()
+            Amplify.Storage.getUrl("RecordingFile.mp3", options,
+                {
+                    Log.i("Soteria","Amplify URL: "+it.url.toString())
+                    for (contact in contactsList) {
+                        sendMessage(it.url.toString(),contact.phone_number, results)
+                    }
+                },
+                { Log.i("MyAmplifyApp", "Failed to get URL: "+it.message)}
+            )
+
         }
 
     }
