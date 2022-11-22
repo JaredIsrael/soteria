@@ -1,9 +1,12 @@
 package com.example.soteria
 
 import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import android.content.DialogInterface
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -87,7 +90,8 @@ class MainActivity : AppCompatActivity() {
         bnv.setupWithNavController(navController)
 
         lifecycleScope.launch { checkIfFirstTime() }
-//        getUserName()
+
+        createNotificationChannel()
 
         Log.d(TAG,"Entered the on resume lifecycle stage.")
     }
@@ -219,6 +223,20 @@ class MainActivity : AppCompatActivity() {
 
         if (!hasPermissions(this, permissionsList)) {
             requestPermissionsLauncher.launch(permissionsList)
+        }
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = getString(R.string.channel_name)
+            val descriptionText = getString(R.string.channel_description)
+            val importance = NotificationManager.IMPORTANCE_HIGH
+            val channel = NotificationChannel(HomeFragment.CHANNEL_ID, name, importance).apply {
+                description = descriptionText
+            }
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
         }
     }
 
