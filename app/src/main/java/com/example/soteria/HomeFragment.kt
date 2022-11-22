@@ -32,6 +32,7 @@ import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.amplifyframework.core.Amplify
 import com.example.soteria.room.viewmodels.ContactViewModel
 import com.example.soteria.room.viewmodels.HomeViewModel
 import com.google.android.gms.common.api.ApiException
@@ -49,6 +50,7 @@ import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.ktx.api.net.awaitFetchPlace
 import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
+import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -357,6 +359,11 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
     fun stopAudioRecording() {
         mediaRecorder.stop()
         mediaRecorder.release()
+        val recordingFile = File(requireContext().getExternalFilesDir(null).toString() + "/recording.mp3")
+        Amplify.Storage.uploadFile("RecordingFile.mp3", recordingFile,
+            { Log.i("MyAmplifyApp", "Successfully uploaded: ${it.key}") },
+            { Log.e("MyAmplifyApp", "Upload failed", it) }
+        )
         Toast.makeText(requireContext(), "recording stopped", Toast.LENGTH_SHORT).show()
     }
 
