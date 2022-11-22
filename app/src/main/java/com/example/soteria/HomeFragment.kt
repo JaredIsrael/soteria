@@ -15,6 +15,12 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import androidx.datastore.dataStore
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 
 /**
@@ -53,7 +59,12 @@ class HomeFragment : Fragment(), View.OnClickListener {
 
         homeTV = view.findViewById(R.id.tvHome)
         homeTV.requestFocus()
-        
+        homeTV.textSize = 24F
+        lifecycleScope.launch {
+            val name = (activity as MainActivity).readStringFromDatastore("name")
+            homeTV.text = "Hello, $name\nPress start to start your emergency countdown"
+        }
+
 
         timeEditText = view.findViewById(R.id.timeET)
 
