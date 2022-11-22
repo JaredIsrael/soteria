@@ -13,6 +13,7 @@ import android.location.Geocoder
 import android.location.Location
 import android.media.MediaPlayer
 import android.media.MediaRecorder
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -27,6 +28,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -95,7 +97,6 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
         activity?.registerReceiver(timerRec, IntentFilter(ACTION_START_RECORDING))
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
-        getLocation()
 
         Places.initialize(requireContext(), BuildConfig.GOOGLE_MAPS_API_KEY)
         placesClient = Places.createClient(requireContext())
@@ -121,10 +122,6 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             checkAndAskPermissions()
         }
-
-
-        val sdf = SimpleDateFormat("yyyy_M_dd_hh_mm_ss")
-        val currentDate = sdf.format(Date())
 
         mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             MediaRecorder(requireContext())
