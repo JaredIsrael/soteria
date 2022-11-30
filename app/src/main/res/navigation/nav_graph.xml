@@ -23,7 +23,11 @@
         android:id="@+id/contactsFragment"
         android:name="com.example.soteria.ContactsFragment"
         android:label="fragment_contacts"
-        tools:layout="@layout/fragment_contacts" />
+        tools:layout="@layout/fragment_contacts" >
+        <action
+            android:id="@+id/action_contactsFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
     <fragment
         android:id="@+id/resourcesFragment"
         android:name="com.example.soteria.ResourcesFragment"

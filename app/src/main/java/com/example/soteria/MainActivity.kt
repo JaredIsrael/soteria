@@ -4,12 +4,17 @@ import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
@@ -23,6 +28,8 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.amplifyframework.AmplifyException
@@ -34,6 +41,9 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "pr
 
 
 class MainActivity : AppCompatActivity() {
+
+//    val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "prefs")
+    private lateinit var navController : NavController
 
     companion object {
         const val TAG = "MainActivity"
@@ -90,8 +100,10 @@ class MainActivity : AppCompatActivity() {
         val bnv = findViewById<BottomNavigationView>(R.id.bottom_nav_view)
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
                 as NavHostFragment
-        val navController = navHostFragment.navController
+        navController = navHostFragment.navController
         bnv.setupWithNavController(navController)
+
+        //lifecycleScope.launch { checkIfFirstTime() }
 
         GlobalScope.launch { checkIfFirstTime() }
         createNotificationChannel()
@@ -135,12 +147,72 @@ class MainActivity : AppCompatActivity() {
             if (!ds.contains(firsTimeKey)) {
                 writeBoolToDatastore(resources.getString(R.string.first_time), false)
                 EulaDialogFragment().show(supportFragmentManager, EulaDialogFragment.TAG)
+                // ask user permissions
+                checkAndAskPermissions()
+                // get user name for home fragment
+                getUserName()
+                // have user add a contact
+                moveToContactsFragment()
             } else if (acceptedEula == false) {
                 EulaDialogFragment().show(supportFragmentManager, EulaDialogFragment.TAG)
+                checkAndAskPermissions()
+                getUserName()
+                moveToContactsFragment()
             } else {
                 checkAndAskPermissions()
+                if (readBoolFromDatastore(getString(R.string.first_time))!!) {
+                    getUserName()
+                    moveToContactsFragment()
+                }
             }
         }
+    }
+
+    private suspend fun moveToContactsFragment() {
+        navController.navigate(R.id.action_homeFragment_to_contactsFragment)
+        AlertDialog.Builder(this).setMessage("Please add a contact to send an emergency message to")
+            .setPositiveButton("Ok", DialogInterface.OnClickListener { _, _ ->
+                // do nothing
+            })
+            .show()
+    }
+
+    private suspend fun getUserName() {
+        val builder = AlertDialog.Builder(this)
+        val editText = EditText(this)
+        editText.hint = "Your name"
+        val layout = LinearLayout(this)
+        layout.orientation = LinearLayout.VERTICAL
+        layout.addView(editText)
+        builder.setView(layout)
+        builder.setTitle("Enter your name")
+        builder.setPositiveButton("Continue") { d, _ ->
+            if (!collectInput(editText)) {
+                d.cancel()
+                builder.show()
+            }
+        }
+        builder.setNegativeButton("Decline") { d, _ ->
+            d.cancel()
+            builder.show()
+
+        }
+        builder.create()
+        builder.show()
+    }
+
+    private fun collectInput(editText: EditText) : Boolean {
+        val input = editText.text.toString()
+        var validInput = false
+
+        if (input == null || input.trim() == "") {
+//            Toast.makeText(this, "Please input your name", Toast.LENGTH_LONG).show()
+        } else {
+            GlobalScope.launch(Dispatchers.IO) { writeStringToDatastore("name", input) }
+            validInput = true
+        }
+
+        return validInput
     }
 
     /*

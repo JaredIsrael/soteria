@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Soteria</string>
+    <string name="channel_name"><xliff:g id="appName">Soteria</xliff:g> Notificación predeterminada</string>
+    <string name="channel_description">Notificación predeterminada</string>
+    <string name="org">com.android.soteria</string>
+    <string name="eula">eula</string>
+    <string name="contacts_name_hint">Introduzca su nombre</string>
+    <string name="contacts_phone_hint">Ingrese su número telefónico</string>
+    <string name="contacts_save">Ahorrar</string>
+    <string name="contacts_delete">Borrar</string>
+    <string name="contacts_import">Importar</string>
+    <string name="contacts_save_to_app">Guardar en la aplicación</string>
+    <string name="start_button_start">Comienzo</string>
+    <string name="start_button_stop">Deténgase</string>
+    <string name="set_time_button">Fijar tiempo</string>
+    <string name="set_time_button_start_recording">Empezar a grabar</string>
+    <string name="set_time_button_recording">Grabación</string>
+    <string name="notification_content_first">Tiempo restante: </string>
+    <string name="notification_content_second"> | Ampliar para opciones</string>
+    <string name="notification_stop">Detener temporizador</string>
+    <string name="notification_title"><xliff:g id="appName">Soteria</xliff:g> Notificación de seguridad</string>
+    <string name="eula_accept">Aceptar</string>
+    <string name="eula_decline">Rechazar</string>
+    <string name="first_time">first_time</string>
+    <string name="settings_title"><u>Ajustes</u></string>
+    <string name="settings_test">Iniciar prueba</string>
+    <string name="recording_settings_header"><u>Ajustes de grabación</u></string>
+    <string name="test_settings_header"><u>Prueba</u></string>
+    <string name="trigger_settings_header"><u>Configuración de disparador</u></string>
+    <string name="message_settings_header"><u>Configuración de mensajes</u></string>
+    <string name="record_audio_setting">Grabar audio en activación de evento</string>
+    <string name="record_video_setting">Grabar video en evento activador</string>
+    <string name="trigger_setting">Tipo de activador de evento</string>
+    <string name="format_setting">formato de mensaje de texto</string>
+    <string name="resources_title"><u>Recursos</u></string>
+    <string name="home">Hogar</string>
+    <string name="contacts">Contactos</string>
+    <string name="resources">Recursos</string>
+    <string name="settings">Ajustes</string>
+    <string name="resources_consent_header"><u>Grabación de leyes de consentimiento</u></string>
+    <string name="resources_consent_body">Cada estado tiene diferentes leyes sobre si
+    o no puede grabar a otros sin su consentimiento. Por favor, lea y comprenda el
+    <a href="https://recordinglaw.com/party-two-party-consent-states/"> ley de grabación relevante</a>
+    para su estado, ya que el uso de esta aplicación puede violar estas leyes de grabación y puede enfrentar cargos.
+    Al aceptar el EULA, reconoce que solo usará esta aplicación donde sea legal, y
+    Comprenda que los desarrolladores no pueden ser responsables de la ayuda.</string>
+    <string name="resources_help_header"><u>Obteniendo ayuda</u></string>
+    <string name="resources_help_body">Si tiene una emergencia, llame al 911 de inmediato.
+    Si fue atacado recientemente, considere estos próximos pasos para obtener ayuda y presentar cargos:\n -
+    Presente un informe policial ante las autoridades locales\n - Reúna pruebas adicionales\n -
+    Comuníquese con sus seres queridos para obtener apoyo\n - <a href="https://www.rainn.org/resources">Línea Directa Nacional de Agresión Sexual</a>\n -
+    <a href="https://www.thehotline.org/">Línea Directa Nacional de Violencia Doméstica</a></string>
+    <string name="resources_eula_header"><u>EULA</u></string>
+    <string name="resources_eula_body">Los usuarios deben aceptar el EULA para usar esta aplicación. Puede revisar este EULA <a href="https://google.com">aquí</a>.</string>
+    <string-array name="recording_access_array">
+        <item>Sin acceso a la grabación</item>
+        <item>Acceso a la grabación de audio</item>
+        <item>Acceso a la grabación de video</item>
+        <item>Acceso a grabación de audio y video</item>
+    </string-array>
+    <string-array name="trigger_array">
+        <item>notificación persistente</item>
+        <item>Pulsación de botón (no funcional)</item>
+        <item>Gesto de sacudir (no funcional)</item>
+    </string-array>
+    <string-array name="format_array">
+        <item>A</item>
+        <item>B</item>
+        <item>C</item>
+    </string-array>
+    <string-array name="message_array">
+        <item>Me siento inseguro en este momento... </item>
+        <item>Necesito ayuda ahora mismo... </item>
+        <item>Activé una aplicación de seguridad...</item>
+    </string-array>
+</resources>
