@@ -32,6 +32,7 @@ import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import aws.smithy.kotlin.runtime.client.SdkLogMode
 import com.amplifyframework.core.Amplify
 import com.amplifyframework.storage.StorageAccessLevel
 import com.amplifyframework.storage.options.StorageGetUrlOptions
@@ -75,7 +76,6 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
     private var initialTime : Long = 0
     private lateinit var audioPath : String
 
-    var message = "test message"
     private val homeModel : HomeViewModel by viewModels()
     private val timerRec = TimerReceiver()
     private lateinit var setTimeBtn : Button
@@ -307,23 +307,27 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
     }
 
     fun sendMessage(url:String, phoneNumber : String, results : Array<String>) {
-        val sentPI: PendingIntent = PendingIntent.getBroadcast(requireContext(), 0, Intent("SMS_SENT"), 0)
         smsManager = SmsManager.getDefault()
-        // idk why this doesn't work
-//        if (Build.VERSION.SDK_INT>=23) {
-//            requireContext().getSystemService(SmsManager::class.java)
-//        } else{
-//            SmsManager.getDefault()
-//        }
 
         var placeName = results[0]
         var placeAddress = results[1]
         var placeTypes = results[2]
-        message = "$message, place name: $placeName, place address: $placeAddress, place types: $placeTypes"
-        smsManager.sendTextMessage(phoneNumber, null, message, sentPI, null)
+        //MAKE URL TINY
+        var tinyUrl = "tiny url"
 
-        val urlMessage = "URL to download recording: "+url;
-        smsManager.sendTextMessage(phoneNumber, null, urlMessage, sentPI, null)
+        //TODO: Get correct default message
+        var defaultMessage = "I'm feeling unsafe right now. This is an automated text from the safety monitoring app Soteria. Please contact me or the authorities as soon as possible."
+        var placeMessage = "I am currenltly at this location: "+placeName
+        var addressMessage = "The address is: " + placeAddress
+        var typeMessage = "This location is a: "+ placeTypes
+        var urlMessage = "I have recorded my surroundings, you can access the recording here: "+ tinyUrl
+
+        smsManager.sendTextMessage(phoneNumber, null, defaultMessage, null, null)
+        smsManager.sendTextMessage(phoneNumber, null, placeMessage, null, null)
+        smsManager.sendTextMessage(phoneNumber, null, addressMessage, null, null)
+        smsManager.sendTextMessage(phoneNumber, null, typeMessage, null, null)
+        smsManager.sendTextMessage(phoneNumber, null,urlMessage, null, null)
+
 
         Toast.makeText(requireContext(), "message sent", Toast.LENGTH_SHORT).show()
 
@@ -416,10 +420,14 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
             optionsBuilder.accessLevel(StorageAccessLevel.PUBLIC)
 
             val options:StorageGetUrlOptions = optionsBuilder.build()
+
+
             Amplify.Storage.getUrl("RecordingFile.mp3", options,
                 {
-                    Log.i("Soteria","Amplify URL: "+it.url.toString())
+                    Log.i("Soteria","Amplify URL for recording: "+it.url.toString())
+                    Log.i("Soteria", "Trying to send messages")
                     for (contact in contactsList) {
+                        Log.i("Soteria","Trying to send message to a contact")
                         sendMessage(it.url.toString(),contact.phone_number, results)
                     }
                 },
