@@ -36,6 +36,10 @@ import aws.smithy.kotlin.runtime.client.SdkLogMode
 import com.amplifyframework.core.Amplify
 import com.amplifyframework.storage.StorageAccessLevel
 import com.amplifyframework.storage.options.StorageGetUrlOptions
+import com.android.volley.Request
+import com.android.volley.Response
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
 import com.example.soteria.room.viewmodels.ContactViewModel
 import com.example.soteria.room.viewmodels.HomeViewModel
 import com.google.android.gms.common.api.ApiException
@@ -53,11 +57,14 @@ import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.ktx.api.net.awaitFetchPlace
 import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
+import org.json.JSONObject
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 
 /**
@@ -88,6 +95,7 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
     private var lastLat = "none"
     private var lastLong = "none"
     private lateinit var placesClient : PlacesClient
+    var currentTinyUrl = ""
 
     companion object {
         const val TAG = "HomeFragment"
@@ -314,12 +322,12 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
         var placeName = results[0]
         var placeAddress = results[1]
         var placeTypes = results[2]
-        //MAKE URL TINY
-        var tinyUrl = "tiny url"
+
+        var tinyUrl = getTinyUrlString(url)
 
         //TODO: Get correct default message
         var defaultMessage = "I'm feeling unsafe right now. This is an automated text from the safety monitoring app Soteria. Please contact me or the authorities as soon as possible."
-        var placeMessage = "I am currenltly at this location: "+placeName
+        var placeMessage = "I am currenltly at this location: "+ placeName
         var addressMessage = "The address is: " + placeAddress
         var typeMessage = "This location is a: "+ placeTypes
         var urlMessage = "I have recorded my surroundings, you can access the recording here: "+ tinyUrl
@@ -420,7 +428,7 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
             val contactsList = mContactViewModel.getAllContactsList()
             val optionsBuilder = StorageGetUrlOptions.builder()
             optionsBuilder.accessLevel(StorageAccessLevel.PUBLIC)
-            sendMessage("example url", "1234567890", arrayOf<String>("", "", "", ""))
+            sendMessage("https://www.google.com", "1234567890", arrayOf<String>("", "", "", ""))
 
             val options:StorageGetUrlOptions = optionsBuilder.build()
 
@@ -440,20 +448,44 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
 
     }
 
-    fun getTinyUrl(fullUrl : String): String {
-        var tinyUrl = ""
-        val requestUrl = URL("https://api/tinyurl.com/create")
-        with(requestUrl.openConnection() as HttpURLConnection) {
-            requestMethod = "GET"
-            println("\nSent 'GET' request to URL : $url; Response Code : $responseCode")
+    fun getTinyUrlString(url: String): String {
+        return runBlocking { getTinyUrl(url).toString() }
+    }
 
-            inputStream.bufferedReader().use {
-                it.lines().forEach { line ->
-                    tinyUrl += line
+    suspend fun getTinyUrl(fullUrl : String) {
+        val requestUrl = "https://api.tinyurl.com/create"
+        val queue = Volley.newRequestQueue(requireContext())
+
+        suspendCancellableCoroutine { cont ->
+            val stringRequest = object : StringRequest(
+                Request.Method.POST, requestUrl,
+                Response.Listener<String> { response ->
+                    Log.d("A", "Response is: " + response)
+                    val json = JSONObject(response)
+                    val tinyUrl = json.getJSONObject("data").getString("tiny_url")
+                    cont.resume(tinyUrl)
+                },
+                Response.ErrorListener { error ->
+                    Log.d("API", "error => $error")
+                    cont.resume("no url found")
+                }
+            ) {
+                override fun getHeaders(): MutableMap<String, String> {
+                    val headers = HashMap<String, String>()
+                    headers["Authorization"] =
+                        "Bearer Mb9uZMeI8U5c9MqJAs9WjYe2KmrIYn5m0LgfBFjS58MJBx0X9lp3gSnqARrf"
+                    return headers
+                }
+
+                override fun getParams(): Map<String, String> {
+                    val params: MutableMap<String, String> = HashMap()
+                    params["url"] = fullUrl
+                    return params
                 }
             }
+
+            queue.add(stringRequest)
         }
-        return tinyUrl
     }
 
     // Move into and finish PermissionHelper class
