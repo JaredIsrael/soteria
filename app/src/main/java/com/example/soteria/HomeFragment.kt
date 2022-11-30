@@ -79,7 +79,7 @@ import kotlin.collections.ArrayList
 class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSetListener {
 
     private lateinit var startBtn : Button
-    private lateinit var homeTV : TextView
+    private lateinit var homeTv : TextView
     private lateinit var mediaRecorder: MediaRecorder
     private lateinit var mediaPlayer: MediaPlayer
     private lateinit var smsManager: SmsManager
