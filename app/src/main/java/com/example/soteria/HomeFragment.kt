@@ -53,6 +53,8 @@ import com.google.android.libraries.places.ktx.api.net.awaitFetchPlace
 import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
 import java.io.File
+import java.net.HttpURLConnection
+import java.net.URL
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -414,6 +416,7 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
             val contactsList = mContactViewModel.getAllContactsList()
             val optionsBuilder = StorageGetUrlOptions.builder()
             optionsBuilder.accessLevel(StorageAccessLevel.PUBLIC)
+            sendMessage("example url", "1234567890", arrayOf<String>("", "", "", ""))
 
             val options:StorageGetUrlOptions = optionsBuilder.build()
             Amplify.Storage.getUrl("RecordingFile.mp3", options,
@@ -425,9 +428,24 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
                 },
                 { Log.i("MyAmplifyApp", "Failed to get URL: "+it.message)}
             )
-
         }
 
+    }
+
+    fun getTinyUrl(fullUrl : String): String {
+        var tinyUrl = ""
+        val requestUrl = URL("https://api/tinyurl.com/create")
+        with(requestUrl.openConnection() as HttpURLConnection) {
+            requestMethod = "GET"
+            println("\nSent 'GET' request to URL : $url; Response Code : $responseCode")
+
+            inputStream.bufferedReader().use {
+                it.lines().forEach { line ->
+                    tinyUrl += line
+                }
+            }
+        }
+        return tinyUrl
     }
 
     // Move into and finish PermissionHelper class

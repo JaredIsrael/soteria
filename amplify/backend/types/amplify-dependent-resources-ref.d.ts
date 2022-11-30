@@ -1,6 +1,6 @@
 export type AmplifyDependentResourcesAttributes = {
     "auth": {
-        "soteriafce243e2": {
+        "soteria4f00a7c5": {
             "IdentityPoolId": "string",
             "IdentityPoolName": "string",
             "UserPoolId": "string",
@@ -11,7 +11,7 @@ export type AmplifyDependentResourcesAttributes = {
         }
     },
     "storage": {
-        "SoteriaBucket": {
+        "soteriaAmplifyResource": {
             "BucketName": "string",
             "Region": "string"
         }

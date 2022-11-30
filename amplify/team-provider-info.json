@@ -19,5 +19,27 @@
         "SoteriaBucket": {}
       }
     }
+  },
+  "devtwo": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-soteria-devtwo-213504-authRole",
+      "UnauthRoleArn": "arn:aws:iam::301317365871:role/amplify-soteria-devtwo-213504-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::301317365871:role/amplify-soteria-devtwo-213504-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-soteria-devtwo-213504-deployment",
+      "UnauthRoleName": "amplify-soteria-devtwo-213504-unauthRole",
+      "StackName": "amplify-soteria-devtwo-213504",
+      "StackId": "arn:aws:cloudformation:us-east-1:301317365871:stack/amplify-soteria-devtwo-213504/99964060-7057-11ed-91fa-0a9e8bdf8903",
+      "AmplifyAppId": "d14gnpkzu05xtb"
+    },
+    "categories": {
+      "auth": {
+        "soteriafce243e2": {},
+        "soteria4f00a7c5": {}
+      },
+      "storage": {
+        "soteriaAmplifyResource": {}
+      }
+    }
   }
 }
