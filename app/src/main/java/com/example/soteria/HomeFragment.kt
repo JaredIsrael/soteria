@@ -323,21 +323,21 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
         var placeAddress = results[1]
         var placeTypes = results[2]
 
-        var tinyUrl = getTinyUrlString(url)
+        var tinyUrl = url
 
         //TODO: Get correct default message
         var defaultMessage = "I'm feeling unsafe right now. This is an automated text from the safety monitoring app Soteria. Please contact me or the authorities as soon as possible."
         var placeMessage = "I am currenltly at this location: "+ placeName
         var addressMessage = "The address is: " + placeAddress
         var typeMessage = "This location is a: "+ placeTypes
-        var urlMessage = "I have recorded my surroundings, you can access the recording here: "+ tinyUrl
+        var urlMessage = "I have recorded my surroundings, you can access the recording here: "
 
         smsManager.sendTextMessage(phoneNumber, null, defaultMessage, null, null)
         smsManager.sendTextMessage(phoneNumber, null, placeMessage, null, null)
         smsManager.sendTextMessage(phoneNumber, null, addressMessage, null, null)
         smsManager.sendTextMessage(phoneNumber, null, typeMessage, null, null)
         smsManager.sendTextMessage(phoneNumber, null,urlMessage, null, null)
-
+        smsManager.sendTextMessage(phoneNumber, null,tinyUrl, null, null)
 
         Toast.makeText(requireContext(), "message sent", Toast.LENGTH_SHORT).show()
 
@@ -428,7 +428,8 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
             val contactsList = mContactViewModel.getAllContactsList()
             val optionsBuilder = StorageGetUrlOptions.builder()
             optionsBuilder.accessLevel(StorageAccessLevel.PUBLIC)
-            sendMessage("https://www.google.com", "1234567890", arrayOf<String>("", "", "", ""))
+            //sendMessage("https://www.google.com", "1234567890", arrayOf<String>("", "", "", ""))
+            getTinyUrl("https://www.google.com")
 
             val options:StorageGetUrlOptions = optionsBuilder.build()
 
@@ -439,7 +440,7 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
                     Log.i("Soteria", "Trying to send messages")
                     for (contact in contactsList) {
                         Log.i("Soteria","Trying to send message to a contact")
-                        sendMessage(it.url.toString(),contact.phone_number, results)
+                        //sendMessage(it.url.toString(),contact.phone_number, results)
                     }
                 },
                 { Log.i("MyAmplifyApp", "Failed to get URL: "+it.message)}
@@ -448,45 +449,41 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
 
     }
 
-    fun getTinyUrlString(url: String): String {
-        return runBlocking { getTinyUrl(url).toString() }
-    }
-
-    suspend fun getTinyUrl(fullUrl : String) {
+    fun getTinyUrl(fullUrl : String) {
         val requestUrl = "https://api.tinyurl.com/create"
         val queue = Volley.newRequestQueue(requireContext())
 
-        suspendCancellableCoroutine { cont ->
-            val stringRequest = object : StringRequest(
-                Request.Method.POST, requestUrl,
-                Response.Listener<String> { response ->
-                    Log.d("A", "Response is: " + response)
-                    val json = JSONObject(response)
-                    val tinyUrl = json.getJSONObject("data").getString("tiny_url")
-                    cont.resume(tinyUrl)
-                },
-                Response.ErrorListener { error ->
-                    Log.d("API", "error => $error")
-                    cont.resume("no url found")
-                }
-            ) {
-                override fun getHeaders(): MutableMap<String, String> {
-                    val headers = HashMap<String, String>()
-                    headers["Authorization"] =
-                        "Bearer Mb9uZMeI8U5c9MqJAs9WjYe2KmrIYn5m0LgfBFjS58MJBx0X9lp3gSnqARrf"
-                    return headers
-                }
-
-                override fun getParams(): Map<String, String> {
-                    val params: MutableMap<String, String> = HashMap()
-                    params["url"] = fullUrl
-                    return params
-                }
+        val stringRequest = object : StringRequest(
+            Request.Method.POST, requestUrl,
+            Response.Listener<String> { response ->
+                Log.d("A", "Response is: " + response)
+                val json = JSONObject(response)
+                val tinyUrl = json.getJSONObject("data").getString("tiny_url")
+                Log.i("A", tinyUrl )
+                sendMessage(tinyUrl, "1234567890", arrayOf<String>("", "", "", ""))
+                Log.i("A" , "Send message with " + tinyUrl)
+            },
+            Response.ErrorListener { error ->
+                Log.d("API", "error => $error")
+            }
+        ) {
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Authorization"] =
+                    "Bearer Mb9uZMeI8U5c9MqJAs9WjYe2KmrIYn5m0LgfBFjS58MJBx0X9lp3gSnqARrf"
+                return headers
             }
 
-            queue.add(stringRequest)
+            override fun getParams(): Map<String, String> {
+                val params: MutableMap<String, String> = HashMap()
+                params["url"] = fullUrl
+                return params
+            }
         }
+
+        queue.add(stringRequest)
     }
+
 
     // Move into and finish PermissionHelper class
     private val requestPermissionsLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
