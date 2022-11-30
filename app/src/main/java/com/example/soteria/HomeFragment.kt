@@ -20,6 +20,12 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import androidx.datastore.dataStore
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import android.widget.TimePicker
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -80,6 +86,14 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
         startBtn = view.findViewById(R.id.startBtn)
         startBtn.textSize = 24F
         startBtn.setOnClickListener(this)
+
+        homeTv = view.findViewById(R.id.tvHome)
+        homeTv.requestFocus()
+        homeTv.textSize = 24F
+        lifecycleScope.launch {
+            val name = (activity as MainActivity).readStringFromDatastore("name")
+            homeTv.text = "Hello, $name\nPress start to start your emergency countdown"
+        }
 
         homeTv = view.findViewById(R.id.tvHome)
         homeTv.requestFocus()
