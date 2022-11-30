@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Soteria</string>
+    <string name="channel_name"><xliff:g id="appName">Soteria</xliff:g> डिफ़ॉल्ट नोटिफिकेशन</string>
+    <string name="channel_description">डिफ़ॉल्ट नोटिफिकेशन</string>
+    <string name="org">com.android.soteria</string>
+    <string name="eula">eula</string>
+    <string name="contacts_name_hint">अपना नाम दर्ज करें</string>
+    <string name="contacts_phone_hint">अपना दूरभाष क्रमांक दर्ज करें</string>
+    <string name="contacts_save">बचाना</string>
+    <string name="contacts_delete">मिटाना</string>
+    <string name="contacts_import">आयात</string>
+    <string name="contacts_save_to_app">ऐप में सेव करें</string>
+    <string name="start_button_start">शुरू</string>
+    <string name="start_button_stop">विराम</string>
+    <string name="set_time_button">निर्धारित समय</string>
+    <string name="set_time_button_start_recording">रिकॉर्डिंग शुरू</string>
+    <string name="set_time_button_recording">रिकॉर्डिंग</string>
+    <string name="notification_content_first">शेष समय: </string>
+    <string name="notification_content_second"> | विकल्पों के लिए विस्तृत करें</string>
+    <string name="notification_stop">स्टॉप टाइमर</string>
+    <string name="notification_title"><xliff:g id="appName">Soteria</xliff:g> सुरक्षा अधिसूचना</string>
+    <string name="eula_accept">स्वीकार करना</string>
+    <string name="eula_decline">पतन</string>
+    <string name="first_time">first_time</string>
+    <string name="settings_title"><u>समायोजन</u></string>
+    <string name="settings_test">परीक्षण प्रारंभ करें</string>
+    <string name="recording_settings_header"><u>रिकॉर्डिंग सेटिंग्स</u></string>
+    <string name="test_settings_header"><u>परीक्षण</u></string>
+    <string name="trigger_settings_header"><u>ट्रिगर सेटिंग्स</u></string>
+    <string name="message_settings_header"><u>संदेश सेटिंग्स</u></string>
+    <string name="record_audio_setting">ईवेंट ट्रिगर पर ऑडियो रिकॉर्ड करें</string>
+    <string name="record_video_setting">इवेंट ट्रिगर पर वीडियो रिकॉर्ड करें</string>
+    <string name="trigger_setting">इवेंट ट्रिगर प्रकार</string>
+    <string name="format_setting">पाठ संदेश प्रारूप</string>
+    <string name="resources_title"><u>साधन</u></string>
+    <string name="home">घर</string>
+    <string name="contacts">संपर्क</string>
+    <string name="resources">साधन</string>
+    <string name="settings">समायोजन</string>
+    <string name="resources_consent_header"><u>रिकॉर्डिंग सहमति कानून</u></string>
+    <string name="resources_consent_body">हर राज्य में चाहे के लिए अलग कानून हैं
+    या नहीं आप दूसरों की सहमति के बिना उन्हें रिकॉर्ड कर सकते हैं। कृपया पढ़ें और समझें
+    <a href="https://recordinglaw.com/party-two-party-consent-states/"> प्रासंगिक रिकॉर्डिंग कानून</a>
+    आपके राज्य के लिए, क्योंकि इस ऐप का उपयोग इन रिकॉर्डिंग कानूनों का उल्लंघन कर सकता है और आपको आरोपों का सामना करना पड़ सकता है।
+    EULA से सहमत होकर, आपने स्वीकार किया है कि आप इस ऐप का उपयोग केवल वहीं करेंगे जहाँ कानूनी, और
+    समझें कि डेवलपर्स जवाबदेह मदद नहीं कर सकते।</string>
+    <string name="resources_help_header"><u>सहायता ले रहा है</u></string>
+    <string name="resources_help_body">यदि आप किसी आपात स्थिति का अनुभव कर रहे हैं, तो कृपया तुरंत 911 डायल करें।
+    यदि आप पर हाल ही में हमला हुआ था, तो कृपया सहायता प्राप्त करने और आरोपों को दबाने के लिए इन अगले चरणों पर विचार करें:\n -
+    अपने स्थानीय अधिकारियों के पास पुलिस रिपोर्ट फ़ाइल करें\n - कोई अतिरिक्त सबूत इकट्ठा करें\n -
+    मदद के लिए अपनों से संपर्क करें\n - <a href="https://www.rainn.org/resources">राष्ट्रीय यौन उत्पीड़न हॉटलाइन</a>\n -
+    <a href="https://www.thehotline.org/">राष्ट्रीय घरेलू हिंसा हॉटलाइन</a></string>
+    <string name="resources_eula_header"><u>EULA</u></string>
+    <string name="resources_eula_body">इस ऐप का उपयोग करने के लिए उपयोगकर्ताओं को EULA से सहमत होना होगा। आप इस ईयूएलए की समीक्षा कर सकते हैं <a href="https://google.com">यहां</a>.</string>
+    <string-array name="recording_access_array">
+        <item>कोई रिकॉर्डिंग एक्सेस नहीं</item>
+        <item>ऑडियो रिकॉर्डिंग एक्सेस</item>
+        <item>वीडियो रिकॉर्डिंग एक्सेस</item>
+        <item>ऑडियो और वीडियो रिकॉर्डिंग एक्सेस</item>
+    </string-array>
+    <string-array name="trigger_array">
+        <item>लगातार अधिसूचना</item>
+        <item>बटन प्रेस (कार्यात्मक नहीं)</item>
+        <item>जेस्चर हिलाएं (कार्यात्मक नहीं)</item>
+    </string-array>
+    <string-array name="format_array">
+        <item>A</item>
+        <item>B</item>
+        <item>C</item>
+    </string-array>
+    <string-array name="message_array">
+        <item>मैं अभी असुरक्षित महसूस कर रहा हूं...</item>
+        <item>मुझे अभी मदद चाहिए... </item>
+        <item>मैंने एक सुरक्षा ऐप ट्रिगर किया है ...</item>
+    </string-array>
+</resources>
