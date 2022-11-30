@@ -96,7 +96,8 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
 
             val text = name.text.split(' ')
             val firstName = text[0]
-            val lastName = text[1]
+            var lastName = ""
+            if(text.count()>1)lastName = text[1]
             val number = phone.text.toString()
             accessSpinner.setSelection(accessStringToNum[accessString]!!)
 
