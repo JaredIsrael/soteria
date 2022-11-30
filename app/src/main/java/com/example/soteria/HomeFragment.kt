@@ -1,17 +1,24 @@
 package com.example.soteria
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
+import android.Manifest
 import android.app.PendingIntent
 import android.app.TimePickerDialog
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
+import android.icu.text.SimpleDateFormat
+import android.location.Geocoder
+import android.location.Location
+import android.media.MediaPlayer
+import android.media.MediaRecorder
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
-import androidx.fragment.app.Fragment
+import android.telephony.SmsManager
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,12 +34,40 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import android.widget.TimePicker
+import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.getSystemService
+import androidx.core.net.toUri
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
+import aws.smithy.kotlin.runtime.client.SdkLogMode
+import com.amplifyframework.core.Amplify
+import com.amplifyframework.storage.StorageAccessLevel
+import com.amplifyframework.storage.options.StorageGetUrlOptions
+import com.example.soteria.room.viewmodels.ContactViewModel
 import com.example.soteria.room.viewmodels.HomeViewModel
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.tasks.CancellationToken
+import com.google.android.gms.tasks.CancellationTokenSource
+import com.google.android.gms.tasks.OnTokenCanceledListener
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.model.PlaceLikelihood
+import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest
+import com.google.android.libraries.places.api.net.PlacesClient
+import com.google.android.libraries.places.ktx.api.net.awaitFetchPlace
+import kotlinx.coroutines.*
+import kotlinx.coroutines.tasks.await
+import java.io.File
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 /**
@@ -40,15 +75,29 @@ import com.example.soteria.room.viewmodels.HomeViewModel
  * Use the [HomeFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
+
 class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSetListener {
+
+    private lateinit var startBtn : Button
+    private lateinit var homeTV : TextView
+    private lateinit var mediaRecorder: MediaRecorder
+    private lateinit var mediaPlayer: MediaPlayer
+    private lateinit var smsManager: SmsManager
+    private val mContactViewModel : ContactViewModel by viewModels()
+    // this should be a setting that can change on the settings page
+    private var initialTime : Long = 0
+    private lateinit var audioPath : String
 
     private val homeModel : HomeViewModel by viewModels()
     private val timerRec = TimerReceiver()
-    private lateinit var startBtn : Button
     private lateinit var setTimeBtn : Button
-    private lateinit var homeTv : TextView
     private lateinit var timeTv : TextView
     private lateinit var notificationBuilder : NotificationCompat.Builder
+
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private var lastLat = "none"
+    private var lastLong = "none"
+    private lateinit var placesClient : PlacesClient
 
     companion object {
         const val TAG = "HomeFragment"
@@ -62,6 +111,12 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
         activity?.registerReceiver(timerRec, IntentFilter(TimerService.ACTION_FINISHED))
         activity?.registerReceiver(timerRec, IntentFilter(ACTION_STOP_TIMER))
         activity?.registerReceiver(timerRec, IntentFilter(ACTION_START_RECORDING))
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
+
+        Places.initialize(requireContext(), BuildConfig.GOOGLE_MAPS_API_KEY)
+        placesClient = Places.createClient(requireContext())
+
         super.onCreate(savedInstanceState)
     }
 
@@ -73,16 +128,34 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
         super.onDestroy()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_home, container, false)
+
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            checkAndAskPermissions()
+        }
+
+        mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            MediaRecorder(requireContext())
+        } else {
+            MediaRecorder()
+        }
+
+        audioPath = requireContext().getExternalFilesDir(null).toString() + "/recording.mp3"
+
+        mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
+        mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+        mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+        mediaRecorder?.setOutputFile(audioPath)
 
         setTimeBtn = view.findViewById(R.id.setTimeBtn)
         setTimeBtn.setOnClickListener(this)
         timeTv = view.findViewById(R.id.timeTv)
+
         startBtn = view.findViewById(R.id.startBtn)
         startBtn.textSize = 24F
         startBtn.setOnClickListener(this)
@@ -202,6 +275,7 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
         }
     }
 
+
     override fun onTimeSet(view: TimePicker?, hourOfDay: Int, minute: Int) {
         val time: String = when (hourOfDay) {
             0 -> {
@@ -211,6 +285,7 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
                     "00:$minute:00"
                 }
             }
+
             else -> {
                 if (minute < 10) {
                     "$hourOfDay:0$minute:00"
@@ -223,12 +298,8 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
     }
 
     private fun timerFinished() {
-        // call recording function
-
-        // send text message
-
+        recordAudio()
     }
-
 
 
     private fun updateTimeTv(timeLeft: Long) {
@@ -254,6 +325,34 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
         }
     }
 
+    fun sendMessage(url:String, phoneNumber : String, results : Array<String>) {
+        smsManager = SmsManager.getDefault()
+
+        var placeName = results[0]
+        var placeAddress = results[1]
+        var placeTypes = results[2]
+        //MAKE URL TINY
+        var tinyUrl = "tiny url"
+
+        //TODO: Get correct default message
+        var defaultMessage = "I'm feeling unsafe right now. This is an automated text from the safety monitoring app Soteria. Please contact me or the authorities as soon as possible."
+        var placeMessage = "I am currenltly at this location: "+placeName
+        var addressMessage = "The address is: " + placeAddress
+        var typeMessage = "This location is a: "+ placeTypes
+        var urlMessage = "I have recorded my surroundings, you can access the recording here: "+ tinyUrl
+
+        smsManager.sendTextMessage(phoneNumber, null, defaultMessage, null, null)
+        smsManager.sendTextMessage(phoneNumber, null, placeMessage, null, null)
+        smsManager.sendTextMessage(phoneNumber, null, addressMessage, null, null)
+        smsManager.sendTextMessage(phoneNumber, null, typeMessage, null, null)
+        smsManager.sendTextMessage(phoneNumber, null,urlMessage, null, null)
+
+
+        Toast.makeText(requireContext(), "message sent", Toast.LENGTH_SHORT).show()
+
+    }
+
+
     private inner class TimerReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent == null) return
@@ -269,4 +368,135 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
         }
 
     }
+
+    fun recordAudio() = runBlocking {
+        launch {
+            startAudioRecording()
+            delay(5000)
+            stopAudioRecording()
+            playAudio()
+        }
+    }
+
+    fun startAudioRecording() {
+        mediaRecorder.prepare()
+        mediaRecorder.start()
+        Toast.makeText(requireContext(), "recording started", Toast.LENGTH_SHORT).show()
+    }
+
+    fun stopAudioRecording() {
+        mediaRecorder.stop()
+        mediaRecorder.release()
+        val recordingFile = File(requireContext().getExternalFilesDir(null).toString() + "/recording.mp3")
+        Amplify.Storage.uploadFile("RecordingFile.mp3", recordingFile,
+            { Log.i("MyAmplifyApp", "Successfully uploaded: ${it.key}")
+            getPlacesLocation()
+            },
+            { Log.e("MyAmplifyApp", "Upload failed", it) }
+        )
+
+        Toast.makeText(requireContext(), "recording stopped", Toast.LENGTH_SHORT).show()
+    }
+
+    fun playAudio() {
+        Toast.makeText(requireContext(), "recording playing", Toast.LENGTH_SHORT).show()
+        mediaPlayer = MediaPlayer()
+        mediaPlayer?.setDataSource(audioPath)
+        mediaPlayer?.prepare()
+        mediaPlayer?.start()
+    }
+
+    private fun getPlacesLocation() {
+        var results = arrayOf<String>()
+        val placeFields: List<Place.Field> = listOf(Place.Field.NAME)
+        val request: FindCurrentPlaceRequest = FindCurrentPlaceRequest.newInstance(placeFields)
+
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            checkAndAskPermissions()
+        }
+
+        val placeResponse = placesClient.findCurrentPlace(request)
+        placeResponse.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Toast.makeText(requireContext(), "found response", Toast.LENGTH_SHORT).show()
+                val response = task.result
+                val pName = response.placeLikelihoods[0].place.name
+                val pAdd = response.placeLikelihoods[0].place.address ?: "no place address"
+                val pTypes = response.placeLikelihoods[0].place.types ?: "no place types"
+                results += arrayOf<String>(pName, pAdd, pTypes.toString())
+            } else {
+                val exception = task.exception
+                if (exception is ApiException) {
+                    Log.e(TAG, "Place not found: ${exception.statusCode}")
+                }
+            }
+            val contactsList = mContactViewModel.getAllContactsList()
+            val optionsBuilder = StorageGetUrlOptions.builder()
+            optionsBuilder.accessLevel(StorageAccessLevel.PUBLIC)
+
+            val options:StorageGetUrlOptions = optionsBuilder.build()
+
+
+            Amplify.Storage.getUrl("RecordingFile.mp3", options,
+                {
+                    Log.i("Soteria","Amplify URL for recording: "+it.url.toString())
+                    Log.i("Soteria", "Trying to send messages")
+                    for (contact in contactsList) {
+                        Log.i("Soteria","Trying to send message to a contact")
+                        sendMessage(it.url.toString(),contact.phone_number, results)
+                    }
+                },
+                { Log.i("MyAmplifyApp", "Failed to get URL: "+it.message)}
+            )
+
+        }
+
+    }
+
+    // Move into and finish PermissionHelper class
+    private val requestPermissionsLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+            permissions ->
+        permissions.entries.forEach {
+            Log.d("DEBUG", "${it.key} = ${it.value}")
+        }
+
+    }
+
+    /*
+    Name: checkAndAskPermission():
+    Description: Check for each permission in the list and if any are missing, ask for them
+    (Android will only ask the user for the specific missing permissions)
+     */
+    fun checkAndAskPermissions() {
+        Log.d(TAG, "Checking permissions")
+
+        val permissionsList = arrayOf(
+            Manifest.permission.SEND_SMS,
+            Manifest.permission.CAMERA,
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.READ_CONTACTS,
+            Manifest.permission.READ_PHONE_NUMBERS,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.POST_NOTIFICATIONS)
+
+        if (!hasPermissions(requireContext(), permissionsList)) {
+            requestPermissionsLauncher.launch(permissionsList)
+        }
+    }
+
+    /*
+    Name: hasPermissions():
+    Description: Helper function to quickly check if all permissions are granted or if 1 or more are missing
+     */
+    private fun hasPermissions(context: Context, permissions: Array<String>): Boolean = permissions.all {
+        ActivityCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+    }
+
 }

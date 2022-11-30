@@ -22,6 +22,11 @@ class ContactViewModel(application: Application) : AndroidViewModel(application!
         allContacts.postValue(list)
     }
 
+    fun getAllContactsList() : List<Contact> {
+        val contactDao = AppDatabase.getDatabase(getApplication()).contactDao()
+        return contactDao?.getAll()!!
+    }
+
     fun insertContactInfo(entity: Contact) {
         val contactDao = AppDatabase.getDatabase(getApplication()).contactDao()
         contactDao?.insertAll(entity)

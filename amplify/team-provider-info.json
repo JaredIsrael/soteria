@@ -1,0 +1,23 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-soteria-dev-225415-authRole",
+      "UnauthRoleArn": "arn:aws:iam::718255049582:role/amplify-soteria-dev-225415-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::718255049582:role/amplify-soteria-dev-225415-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-soteria-dev-225415-deployment",
+      "UnauthRoleName": "amplify-soteria-dev-225415-unauthRole",
+      "StackName": "amplify-soteria-dev-225415",
+      "StackId": "arn:aws:cloudformation:us-east-1:718255049582:stack/amplify-soteria-dev-225415/55d73fd0-6a19-11ed-95e8-0e260fe472a5",
+      "AmplifyAppId": "d13aziqcc0j3k3"
+    },
+    "categories": {
+      "auth": {
+        "soteriafce243e2": {}
+      },
+      "storage": {
+        "SoteriaBucket": {}
+      }
+    }
+  }
+}
