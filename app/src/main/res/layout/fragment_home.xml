@@ -47,7 +47,7 @@
         android:layout_height="74dp"
         android:layout_marginTop="104dp"
         android:gravity="center"
-        android:text="0:30:00"
+        android:text="00:30:00"
         android:textSize="32dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.49"
