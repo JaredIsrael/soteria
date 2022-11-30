@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Soteria</string>
+    <string name="channel_name"><xliff:g id="appName">Soteria</xliff:g> 默认通知</string>
+    <string name="channel_description">默认通知</string>
+    <string name="org">com.android.soteria</string>
+    <string name="eula">eula</string>
+    <string name="contacts_name_hint">輸入你的名字</string>
+    <string name="contacts_phone_hint">輸入你的電話號碼</string>
+    <string name="contacts_save">節省</string>
+    <string name="contacts_delete">刪除</string>
+    <string name="contacts_import">進口</string>
+    <string name="contacts_save_to_app">保存到應用程序</string>
+    <string name="start_button_start">开始</string>
+    <string name="start_button_stop">停止</string>
+    <string name="set_time_button">設置時間</string>
+    <string name="set_time_button_start_recording">開始錄音</string>
+    <string name="set_time_button_recording">開始錄音</string>
+    <string name="notification_content_first">剩下的時間: </string>
+    <string name="notification_content_second"> | 展開選項</string>
+    <string name="notification_stop">停止定時器</string>
+    <string name="notification_title"><xliff:g id="appName">Soteria</xliff:g> 安全通知</string>
+    <string name="eula_accept">接受</string>
+    <string name="eula_decline">衰退</string>
+    <string name="first_time">first_time</string>
+    <string name="settings_title"><u>設置</u></string>
+    <string name="settings_test">開始測試</string>
+    <string name="recording_settings_header"><u>錄音設置</u></string>
+    <string name="test_settings_header"><u>測試</u></string>
+    <string name="trigger_settings_header"><u>觸發器設置</u></string>
+    <string name="message_settings_header"><u>消息設置</u></string>
+    <string name="record_audio_setting">在事件觸發器上錄製音頻</string>
+    <string name="record_video_setting">在事件觸發器上錄製視頻</string>
+    <string name="trigger_setting">事件觸發類型</string>
+    <string name="format_setting">短信格式</string>
+    <string name="resources_title"><u>資源</u></string>
+    <string name="home">家</string>
+    <string name="contacts">聯繫人</string>
+    <string name="resources">資源</string>
+    <string name="settings">設置</string>
+    <string name="resources_consent_header"><u>錄音同意法</u></string>
+    <string name="resources_consent_body">每個州都有不同的法律規定是否
+    您是否可以在未經他人同意的情況下錄製他人。請閱讀並理解
+    <a href="https://recordinglaw.com/party-two-party-consent-states/"> 相關記錄法</a>
+    對於您所在的州，因為使用此應用程序可能會違反這些錄音法，您可能會面臨指控。
+    同意 EULA，即表示您承認您只會在合法的情況下使用此應用程序，並且
+    了解開發人員無法承擔責任。</string>
+    <string name="resources_help_header"><u>獲得幫助</u></string>
+    <string name="resources_help_body">如果您遇到緊急情況，請立即撥打 911。
+    如果您最近受到攻擊，請考慮以下後續步驟以獲得幫助並提出指控：\n -
+    向地方當局提交警方報告\n - 收集任何其他證據\n -
+    向親人尋求支持\n - <a href="https://www.rainn.org/resources">全國性侵熱線</a>\n -
+    <a href="https://www.thehotline.org/">全國家庭暴力熱線</a></string>
+    <string name="resources_eula_header"><u>EULA</u></string>
+    <string name="resources_eula_body">用戶必須同意 EULA 才能使用此應用程序。您可以查看此 EULA<a href="https://google.com"> 這裡</a>.</string>
+    <string-array name="recording_access_array">
+        <item>沒有錄音訪問</item>
+        <item>錄音訪問</item>
+        <item>錄像訪問</item>
+        <item>音頻和視頻錄製訪問</item>
+    </string-array>
+    <string-array name="trigger_array">
+        <item>持續通知</item>
+        <item>按下按鈕（無效）</item>
+        <item>搖動手勢（無效）</item>
+    </string-array>
+    <string-array name="format_array">
+        <item>A</item>
+        <item>B</item>
+        <item>C</item>
+    </string-array>
+    <string-array name="message_array">
+        <item>我現在感覺很不安全...</item>
+        <item>我現在需要幫助...</item>
+        <item>我觸發了一個安全應用程序......</item>
+    </string-array>
+</resources>

@@ -51,8 +51,8 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
         ContactsContract.CommonDataKinds.Phone._ID
     ).toTypedArray()
 
-    val accessStringToNum = mapOf("No recording access" to 0,"Audio recording access" to 1,
-        "Video recording access" to 2, "Audio and video recording access" to 3)
+    private lateinit var accessOptions: Array<String>
+    private lateinit var accessStringToNum :Map<String, Int>
     val accessNumToString = mapOf(0 to "No recording access", 1 to "Audio recording access",
         2 to "Video recording access", 3 to "Audio and video recording access")
 
@@ -64,6 +64,10 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
             recyclerViewAdapter.setListData(ArrayList(it))
             recyclerViewAdapter.notifyDataSetChanged()
         })
+
+        accessOptions = resources.getStringArray(R.array.recording_access_array)
+        accessStringToNum = mapOf(accessOptions[0] to 0,accessOptions[1] to 1,
+            accessOptions[2] to 2, accessOptions[3] to 3)
     }
 
     override fun onCreateView(
@@ -86,7 +90,6 @@ class ContactsFragment : Fragment(), RecyclerViewAdapter.RowClickListener {
         saveToAppBtn.visibility = View.INVISIBLE
         deleteBtn.visibility = View.INVISIBLE
 
-        val accessOptions: Array<String> = resources.getStringArray(R.array.recording_access_array)
         setupSpinner(accessOptions)
 
         saveBtn.setOnClickListener {
