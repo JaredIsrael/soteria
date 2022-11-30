@@ -19,10 +19,11 @@ Details:
         -- recording_access = 3: Emergency contact has access to audio AND video recordings
 
  */
-@Entity
+@Entity(tableName = "contact")
 data class Contact (
-    @PrimaryKey val phone_number: String,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name="id") val id : Int = 0,
     @ColumnInfo(name = "first_name") val first_name: String,
     @ColumnInfo(name = "last_name") val last_name: String,
-    @ColumnInfo(name = "recording_access") val recording_access: Int
+    @ColumnInfo(name = "recording_access", defaultValue = "0") val recording_access: Int,
+    @ColumnInfo(name = "phone_number") val phone_number: String
 )

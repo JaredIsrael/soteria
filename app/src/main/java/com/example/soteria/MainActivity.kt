@@ -1,8 +1,11 @@
 package com.example.soteria
 
 import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -18,9 +21,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
+import com.amplifyframework.AmplifyException
+import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin
+import com.amplifyframework.core.Amplify
+import com.amplifyframework.storage.s3.AWSS3StoragePlugin
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "prefs")
 
@@ -69,6 +77,16 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        try {
+            // Add these lines to add the AWSCognitoAuthPlugin and AWSS3StoragePlugin plugins
+            Amplify.addPlugin(AWSCognitoAuthPlugin())
+            Amplify.addPlugin(AWSS3StoragePlugin())
+            Amplify.configure(applicationContext)
+
+            Log.i("MyAmplifyApp", "Initialized Amplify")
+        } catch (error: AmplifyException) {
+            Log.e("MyAmplifyApp", "Could not initialize Amplify", error)
+        }
         val bnv = findViewById<BottomNavigationView>(R.id.bottom_nav_view)
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
                 as NavHostFragment
@@ -76,6 +94,7 @@ class MainActivity : AppCompatActivity() {
         bnv.setupWithNavController(navController)
 
         GlobalScope.launch { checkIfFirstTime() }
+        createNotificationChannel()
 
         Log.d(TAG,"Entered the on resume lifecycle stage.")
     }
@@ -87,14 +106,27 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    public suspend fun writeStringToDatastore(key: String, value: String){
+        val dataStoreKey = stringPreferencesKey(key)
+        dataStore.edit { settings ->
+            settings[dataStoreKey] = value
+        }
+    }
+
     public suspend fun readBoolFromDatastore(key: String): Boolean? {
         val dataStoreKey = booleanPreferencesKey(key)
         val prefs = dataStore.data.first()
         return prefs[dataStoreKey]
     }
 
-    private suspend fun checkIfFirstTime() {
+    public suspend fun readStringFromDatastore(key: String): String? {
+        val dataStoreKey = stringPreferencesKey(key)
+        val prefs = dataStore.data.first()
+        return prefs[dataStoreKey]
+    }
 
+
+    private suspend fun checkIfFirstTime() {
         withContext(Dispatchers.IO) {
             val firsTimeKey = booleanPreferencesKey(resources.getString(R.string.first_time))
             val acceptedEula = readBoolFromDatastore(resources.getString(R.string.eula))
@@ -128,10 +160,25 @@ class MainActivity : AppCompatActivity() {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION)
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.POST_NOTIFICATIONS)
 
         if (!hasPermissions(this, permissionsList)) {
             requestPermissionsLauncher.launch(permissionsList)
+        }
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = getString(R.string.channel_name)
+            val descriptionText = getString(R.string.channel_description)
+            val importance = NotificationManager.IMPORTANCE_HIGH
+            val channel = NotificationChannel(HomeFragment.CHANNEL_ID, name, importance).apply {
+                description = descriptionText
+            }
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
         }
     }
 

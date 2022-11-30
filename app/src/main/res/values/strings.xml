@@ -1,10 +1,56 @@
 <resources>
     <string name="app_name">Soteria</string>
+    <string name="channel_name">Soteria Default Notification</string>
+    <string name="channel_description">Default Notification</string>
     <string name="org">com.android.soteria</string>
     <string name="eula">eula</string>
     <string name="eula_accept">Accept</string>
     <string name="eula_decline">Decline</string>
     <string name="first_time">first_time</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="settings_title"><u>Settings</u></string>
+    <string name="recording_settings_header"><u>Recording settings</u></string>
+    <string name="test_settings_header"><u>Test</u></string>
+    <string name="trigger_settings_header"><u>Trigger settings</u></string>
+    <string name="message_settings_header"><u>Message settings</u></string>
+    <string name="record_audio_setting">Record audio on event trigger</string>
+    <string name="record_video_setting">Record video on event trigger</string>
+    <string name="trigger_setting">Event trigger type</string>
+    <string name="format_setting">Text message format</string>
+    <string name="resources_title"><u>Resources</u></string>
+    <string name="resources_consent_header"><u>Recording consent laws</u></string>
+    <string name="resources_consent_body">Every state has different laws for whether
+    or not you can record others without their consent. Please read and understand the
+    <a href="https://recordinglaw.com/party-two-party-consent-states/"> relevant recording law</a>
+    for your state, as usage of this app can violate these recording laws and you may face charges.
+    By agreeing to the EULA, you have acknowledge that you will only use this app where legal, and
+    understand developers cannot be help accountable.</string>
+    <string name="resources_help_header"><u>Getting help</u></string>
+    <string name="resources_help_body">If you are experiencing an emergency, please dial 911 immediately.
+    If you were recently attacked, pleas consider these next steps to get help and press charges:\n -
+    File a police report with your local authorities\n - Gather any additional evidence\n -
+    Reach out to loved ones for support\n - <a href="https://www.rainn.org/resources">National Sexual Assault Hotline</a>\n -
+    <a href="https://www.thehotline.org/">National Domestic Violence Hotline</a></string>
+    <string name="resources_eula_header"><u>EULA</u></string>
+    <string name="resources_eula_body">Users must agree to the EULA to use this app. You can review this EULA <a href="https://google.com">here</a>.</string>
+    <string-array name="recording_access_array">
+        <item>No recording access</item>
+        <item>Audio recording access</item>
+        <item>Video recording access</item>
+        <item>Audio and video recording access</item>
+    </string-array>
+    <string-array name="trigger_array">
+        <item>Persistent notification</item>
+        <item>Button press (not functional)</item>
+        <item>Shake gesture (not functional)</item>
+    </string-array>
+    <string-array name="format_array">
+        <item>A</item>
+        <item>B</item>
+        <item>C</item>
+    </string-array>
+    <string-array name="message_array">
+        <item>I\m feeling unsafe right now ... </item>
+        <item>I need help right now ... </item>
+        <item>I triggered a saftey app ... </item>
+    </string-array>
 </resources>

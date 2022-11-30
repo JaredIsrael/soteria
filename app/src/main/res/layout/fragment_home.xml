@@ -7,16 +7,51 @@
     android:layout_height="match_parent"
     tools:context=".HomeFragment">
 
-    <!-- TODO: Update blank fragment layout -->
     <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/tvHome"
+        android:layout_width="365dp"
+        android:layout_height="100dp"
         android:text="Home Fragment"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.382" />
+        app:layout_constraintVertical_bias="0.049" />
+
+    <Button
+        android:id="@+id/startBtn"
+        android:layout_width="320dp"
+        android:layout_height="87dp"
+        android:layout_marginBottom="24dp"
+        android:text="Start"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.494"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/setTimeBtn"
+        android:layout_width="328dp"
+        android:layout_height="89dp"
+        android:text="Set Time"
+        app:layout_constraintBottom_toTopOf="@+id/startBtn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.493"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/timeTv"
+        app:layout_constraintVertical_bias="0.932" />
+
+    <TextView
+        android:id="@+id/timeTv"
+        android:layout_width="356dp"
+        android:layout_height="74dp"
+        android:layout_marginTop="104dp"
+        android:gravity="center"
+        android:text="0:30:00"
+        android:textSize="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.49"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvHome" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
