@@ -99,8 +99,8 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
         homeTv.requestFocus()
 
         if (homeModel.timerRunning) {
-            setTimeBtn.text = "Start Recording"
-            startBtn.text = "Stop"
+            setTimeBtn.text = getString(R.string.set_time_button_start_recording)
+            startBtn.text = getString(R.string.start_button_stop)
         }
 
         return view
@@ -159,8 +159,8 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
         activity?.stopService(Intent(context, TimerService::class.java))
         homeModel.timerRunning = false
         timeTv.text = "00:30:00"
-        setTimeBtn.text = "Set Time"
-        startBtn.text = "Start"
+        setTimeBtn.text = getString(R.string.set_time_button)
+        startBtn.text = getString(R.string.start_button_start)
         with (NotificationManagerCompat.from(requireContext())) {
             cancel(1)
         }
@@ -168,13 +168,13 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
 
     private fun startTimer(time : LongArray) {
         homeModel.timerRunning = true
-        setTimeBtn.text = "Start Recording"
+        setTimeBtn.text = getString(R.string.set_time_button_start_recording)
         val intent = Intent(context, TimerService::class.java)
         intent.putExtra("hour", time[0])
         intent.putExtra("min", time[1])
         activity?.startService(intent)
         createNotification()
-        startBtn.text = "Stop"
+        startBtn.text = getString(R.string.start_button_stop)
     }
 
     private fun createNotification() {
@@ -191,12 +191,11 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
 
         notificationBuilder = NotificationCompat.Builder(requireContext(), CHANNEL_ID)
             .setSmallIcon(R.drawable.notification_icon)
-            .setContentTitle("Soteria Safety Notification")
-            .setContentText("Press start to start recording")
+            .setContentTitle(getString(R.string.notification_title))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
-            .addAction(0, "Start Recording", startRecordPendingIntent)
-            .addAction(0, "Stop Timer", stopTimerPendingIntent)
+            .addAction(0, getString(R.string.set_time_button_start_recording), startRecordPendingIntent)
+            .addAction(0, getString(R.string.notification_stop), stopTimerPendingIntent)
 
         with(NotificationManagerCompat.from(requireContext())) {
             notify(1, notificationBuilder.build())
@@ -249,7 +248,7 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
         val time = "$hLeft:$mLeft:$sLeft"
 
         timeTv.text = time
-        notificationBuilder.setContentText("Time Left: $time | Expand for options")
+        notificationBuilder.setContentText(getString(R.string.notification_content_first) + "$time" + getString(R.string.notification_content_second))
         with (NotificationManagerCompat.from(requireContext())) {
             notify(1, notificationBuilder.build())
         }
