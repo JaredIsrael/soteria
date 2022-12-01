@@ -1,0 +1,14 @@
+{
+  "resourceName": "soteriaAmplifyResource",
+  "policyUUID": "715da102",
+  "bucketName": "soteriabucket",
+  "storageAccess": "authAndGuest",
+  "guestAccess": [
+    "CREATE_AND_UPDATE"
+  ],
+  "authAccess": [
+    "CREATE_AND_UPDATE"
+  ],
+  "triggerFunction": "NONE",
+  "groupAccess": {}
+}

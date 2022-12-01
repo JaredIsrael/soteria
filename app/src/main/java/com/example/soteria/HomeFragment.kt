@@ -8,15 +8,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.icu.text.SimpleDateFormat
-import android.location.Geocoder
-import android.location.Location
 import android.media.MediaPlayer
 import android.media.MediaRecorder
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.CountDownTimer
 import android.telephony.SmsManager
 import android.util.Log
 import android.view.LayoutInflater
@@ -40,34 +35,28 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
-import aws.smithy.kotlin.runtime.client.SdkLogMode
 import com.amplifyframework.core.Amplify
 import com.amplifyframework.storage.StorageAccessLevel
 import com.amplifyframework.storage.options.StorageGetUrlOptions
+import com.android.volley.Request
+import com.android.volley.Response
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
 import com.example.soteria.room.viewmodels.ContactViewModel
 import com.example.soteria.room.viewmodels.HomeViewModel
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.tasks.CancellationToken
-import com.google.android.gms.tasks.CancellationTokenSource
-import com.google.android.gms.tasks.OnTokenCanceledListener
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
-import com.google.android.libraries.places.api.model.PlaceLikelihood
 import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest
 import com.google.android.libraries.places.api.net.PlacesClient
-import com.google.android.libraries.places.ktx.api.net.awaitFetchPlace
 import kotlinx.coroutines.*
-import kotlinx.coroutines.tasks.await
+import org.json.JSONObject
 import java.io.File
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 /**
@@ -82,7 +71,6 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
     private lateinit var homeTv : TextView
     private lateinit var mediaRecorder: MediaRecorder
     private lateinit var mediaPlayer: MediaPlayer
-    private lateinit var smsManager: SmsManager
     private val mContactViewModel : ContactViewModel by viewModels()
     // this should be a setting that can change on the settings page
     private var initialTime : Long = 0
@@ -95,9 +83,9 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
     private lateinit var notificationBuilder : NotificationCompat.Builder
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private var lastLat = "none"
-    private var lastLong = "none"
     private lateinit var placesClient : PlacesClient
+//    lateinit var mContext : Context
+    var currentTinyUrl = ""
 
     companion object {
         const val TAG = "HomeFragment"
@@ -326,27 +314,25 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
     }
 
     fun sendMessage(url:String, phoneNumber : String, results : Array<String>) {
-        smsManager = SmsManager.getDefault()
 
+        val smsManager:SmsManager = SmsManager.getDefault()
         var placeName = results[0]
         var placeAddress = results[1]
         var placeTypes = results[2]
-        //MAKE URL TINY
-        var tinyUrl = "tiny url"
+        var tinyUrl = url
 
-        //TODO: Get correct default message
         var defaultMessage = "I'm feeling unsafe right now. This is an automated text from the safety monitoring app Soteria. Please contact me or the authorities as soon as possible."
-        var placeMessage = "I am currenltly at this location: "+placeName
+        var placeMessage = "I am currenltly at this location: "+ placeName
         var addressMessage = "The address is: " + placeAddress
         var typeMessage = "This location is a: "+ placeTypes
-        var urlMessage = "I have recorded my surroundings, you can access the recording here: "+ tinyUrl
+        var urlMessage = "I have recorded my surroundings, you can access the recording here: "
 
         smsManager.sendTextMessage(phoneNumber, null, defaultMessage, null, null)
         smsManager.sendTextMessage(phoneNumber, null, placeMessage, null, null)
         smsManager.sendTextMessage(phoneNumber, null, addressMessage, null, null)
         smsManager.sendTextMessage(phoneNumber, null, typeMessage, null, null)
         smsManager.sendTextMessage(phoneNumber, null,urlMessage, null, null)
-
+        smsManager.sendTextMessage(phoneNumber, null,tinyUrl, null, null)
 
         Toast.makeText(requireContext(), "message sent", Toast.LENGTH_SHORT).show()
 
@@ -434,7 +420,6 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
                     Log.e(TAG, "Place not found: ${exception.statusCode}")
                 }
             }
-            val contactsList = mContactViewModel.getAllContactsList()
             val optionsBuilder = StorageGetUrlOptions.builder()
             optionsBuilder.accessLevel(StorageAccessLevel.PUBLIC)
 
@@ -445,17 +430,53 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
                 {
                     Log.i("Soteria","Amplify URL for recording: "+it.url.toString())
                     Log.i("Soteria", "Trying to send messages")
-                    for (contact in contactsList) {
-                        Log.i("Soteria","Trying to send message to a contact")
-                        sendMessage(it.url.toString(),contact.phone_number, results)
-                    }
+                    getTinyUrl(it.url.toString(), results)
                 },
                 { Log.i("MyAmplifyApp", "Failed to get URL: "+it.message)}
             )
-
         }
 
     }
+
+    fun getTinyUrl(fullUrl : String, results: Array<String>) {
+        val requestUrl = "https://api.tinyurl.com/create"
+        val queue = Volley.newRequestQueue(requireContext())
+
+        val stringRequest = object : StringRequest(
+            Request.Method.POST, requestUrl,
+            Response.Listener<String> { response ->
+                Log.d("A", "Response is: " + response)
+                val json = JSONObject(response)
+                val tinyUrl = json.getJSONObject("data").getString("tiny_url")
+                Log.i("A", tinyUrl )
+
+                val contactsList = mContactViewModel.getAllContactsList()
+                for (contact in contactsList) {
+                    sendMessage(tinyUrl, contact.phone_number, results)
+                }
+                Log.i("A" , "Send message with " + tinyUrl)
+            },
+            Response.ErrorListener { error ->
+                Log.d("API", "error => $error")
+            }
+        ) {
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers["Authorization"] =
+                    "Bearer Mb9uZMeI8U5c9MqJAs9WjYe2KmrIYn5m0LgfBFjS58MJBx0X9lp3gSnqARrf"
+                return headers
+            }
+
+            override fun getParams(): Map<String, String> {
+                val params: MutableMap<String, String> = HashMap()
+                params["url"] = fullUrl
+                return params
+            }
+        }
+
+        queue.add(stringRequest)
+    }
+
 
     // Move into and finish PermissionHelper class
     private val requestPermissionsLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
