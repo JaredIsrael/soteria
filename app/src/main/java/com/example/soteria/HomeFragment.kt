@@ -313,15 +313,9 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
         }
     }
 
-//    override fun onAttach(context: Context) {
-//        super.onAttach(context)
-//        mContext = context
-//    }
-
     fun sendMessage(url:String, phoneNumber : String, results : Array<String>) {
 
         val smsManager:SmsManager = SmsManager.getDefault()
-
         var placeName = results[0]
         var placeAddress = results[1]
         var placeTypes = results[2]
@@ -428,7 +422,6 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
             }
             val optionsBuilder = StorageGetUrlOptions.builder()
             optionsBuilder.accessLevel(StorageAccessLevel.PUBLIC)
-//            getTinyUrl("https://www.google.com")
 
             val options:StorageGetUrlOptions = optionsBuilder.build()
 
