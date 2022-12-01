@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.os.Build
@@ -35,6 +36,8 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.amplifyframework.core.Amplify
@@ -84,8 +87,6 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var placesClient : PlacesClient
-//    lateinit var mContext : Context
-    var currentTinyUrl = ""
 
     companion object {
         const val TAG = "HomeFragment"
@@ -316,6 +317,7 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
     fun sendMessage(url:String, phoneNumber : String, results : Array<String>) {
 
         val smsManager:SmsManager = SmsManager.getDefault()
+
         var placeName = results[0]
         var placeAddress = results[1]
         var placeTypes = results[2]
@@ -360,7 +362,7 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
             startAudioRecording()
             delay(5000)
             stopAudioRecording()
-            playAudio()
+            //playAudio()
         }
     }
 
@@ -393,9 +395,6 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
     }
 
     private fun getPlacesLocation() {
-        var results = arrayOf<String>()
-        val placeFields: List<Place.Field> = listOf(Place.Field.NAME)
-        val request: FindCurrentPlaceRequest = FindCurrentPlaceRequest.newInstance(placeFields)
 
         if (ActivityCompat.checkSelfPermission(
                 requireContext(),
@@ -405,34 +404,50 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
             checkAndAskPermissions()
         }
 
-        val placeResponse = placesClient.findCurrentPlace(request)
-        placeResponse.addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                Toast.makeText(requireContext(), "found response", Toast.LENGTH_SHORT).show()
-                val response = task.result
-                val pName = response.placeLikelihoods[0].place.name
-                val pAdd = response.placeLikelihoods[0].place.address ?: "no place address"
-                val pTypes = response.placeLikelihoods[0].place.types ?: "no place types"
-                results += arrayOf<String>(pName, pAdd, pTypes.toString())
-            } else {
-                val exception = task.exception
-                if (exception is ApiException) {
-                    Log.e(TAG, "Place not found: ${exception.statusCode}")
+        val locationManager  = requireContext().getSystemService(LocationManager::class.java)
+        var results = arrayOf<String>()
+
+        val optionsBuilder = StorageGetUrlOptions.builder()
+        optionsBuilder.accessLevel(StorageAccessLevel.PUBLIC)
+        val options: StorageGetUrlOptions = optionsBuilder.build()
+
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            val placeFields: List<Place.Field> = listOf(Place.Field.NAME)
+            val request: FindCurrentPlaceRequest = FindCurrentPlaceRequest.newInstance(placeFields)
+            val placeResponse = placesClient.findCurrentPlace(request)
+
+            placeResponse.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val response = task.result
+                    val pName = response.placeLikelihoods[0].place.name
+                    val pAdd = response.placeLikelihoods[0].place.address ?: "no place address"
+                    val pTypes = response.placeLikelihoods[0].place.types ?: "no place types"
+                    results += arrayOf<String>(pName, pAdd, pTypes.toString())
+
+                    Amplify.Storage.getUrl("RecordingFile.mp3", options,
+                        {
+                            Log.i("Soteria", "Amplify URL for recording: " + it.url.toString())
+                            Log.i("Soteria", "Trying to send messages")
+                            getTinyUrl(it.url.toString(), results)
+                        },
+                        { Log.i("MyAmplifyApp", "Failed to get URL: " + it.message) }
+                    )
+                } else {
+                    val exception = task.exception
+                    if (exception is ApiException) {
+                        Log.e(TAG, "Place not found: ${exception.statusCode}")
+                    }
                 }
             }
-            val optionsBuilder = StorageGetUrlOptions.builder()
-            optionsBuilder.accessLevel(StorageAccessLevel.PUBLIC)
-
-            val options:StorageGetUrlOptions = optionsBuilder.build()
-
-
+        } else {
+            results += arrayOf("place name not available", "place address not available", "place type not available")
             Amplify.Storage.getUrl("RecordingFile.mp3", options,
                 {
-                    Log.i("Soteria","Amplify URL for recording: "+it.url.toString())
+                    Log.i("Soteria", "Amplify URL for recording: " + it.url.toString())
                     Log.i("Soteria", "Trying to send messages")
                     getTinyUrl(it.url.toString(), results)
                 },
-                { Log.i("MyAmplifyApp", "Failed to get URL: "+it.message)}
+                { Log.i("MyAmplifyApp", "Failed to get URL: " + it.message) }
             )
         }
 
