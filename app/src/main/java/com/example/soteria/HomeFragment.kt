@@ -290,6 +290,7 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
     }
 
     private fun timerFinished() {
+        activity?.stopService(Intent(context, TimerService::class.java))
         recordAudio()
     }
 
