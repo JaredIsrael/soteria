@@ -153,7 +153,7 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
         homeTv.textSize = 24F
         lifecycleScope.launch {
             val name = (activity as MainActivity).readStringFromDatastore("name")
-            homeTv.text = "Hello, $name\nPress start to start your emergency countdown"
+            homeTv.text = getString(R.string.homeTv, name)
         }
 
         homeTv = view.findViewById(R.id.tvHome)

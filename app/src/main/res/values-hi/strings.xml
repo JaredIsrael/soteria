@@ -5,6 +5,7 @@
     <string name="channel_description">डिफ़ॉल्ट नोटिफिकेशन</string>
     <string name="org">com.android.soteria</string>
     <string name="eula">eula</string>
+    <string name="homeTv">नमस्कार, %1$s\nअपनी आपातकालीन उलटी गिनती शुरू करने के लिए प्रारंभ करें दबाएं</string>
     <string name="contacts_name_hint">अपना नाम दर्ज करें</string>
     <string name="contacts_phone_hint">अपना दूरभाष क्रमांक दर्ज करें</string>
     <string name="contacts_save">बचाना</string>

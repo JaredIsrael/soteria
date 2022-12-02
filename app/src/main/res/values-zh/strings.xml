@@ -5,6 +5,7 @@
     <string name="channel_description">默认通知</string>
     <string name="org">com.android.soteria</string>
     <string name="eula">eula</string>
+    <string name="homeTv">你好，%1$s\n按開始鍵開始你的緊急倒計時</string>
     <string name="contacts_name_hint">輸入你的名字</string>
     <string name="contacts_phone_hint">輸入你的電話號碼</string>
     <string name="contacts_save">節省</string>
