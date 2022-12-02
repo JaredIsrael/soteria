@@ -84,7 +84,7 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var placesClient : PlacesClient
-//    lateinit var mContext : Context
+
     var currentTinyUrl = ""
 
     companion object {
@@ -104,7 +104,7 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
 
         Places.initialize(requireContext(), BuildConfig.GOOGLE_MAPS_API_KEY)
         placesClient = Places.createClient(requireContext())
-
+        createNotification()
         super.onCreate(savedInstanceState)
     }
 
@@ -158,6 +158,7 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
 
         homeTv = view.findViewById(R.id.tvHome)
         homeTv.requestFocus()
+
 
         if (homeModel.timerRunning) {
             setTimeBtn.text = getString(R.string.set_time_button_start_recording)
@@ -234,8 +235,8 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
         intent.putExtra("hour", time[0])
         intent.putExtra("min", time[1])
         activity?.startService(intent)
-        createNotification()
-        startBtn.text = getString(R.string.start_button_stop)
+        startNotification()
+        startBtn.text = "Stop"
     }
 
     private fun createNotification() {
@@ -258,6 +259,9 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
             .addAction(0, getString(R.string.set_time_button_start_recording), startRecordPendingIntent)
             .addAction(0, getString(R.string.notification_stop), stopTimerPendingIntent)
 
+    }
+
+    private fun startNotification() {
         with(NotificationManagerCompat.from(requireContext())) {
             notify(1, notificationBuilder.build())
         }
