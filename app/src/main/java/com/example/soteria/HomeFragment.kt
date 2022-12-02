@@ -311,7 +311,7 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
         val time = "$hLeft:$mLeft:$sLeft"
 
         timeTv.text = time
-        notificationBuilder.setContentText(getString(R.string.notification_content_first) + "$time" + getString(R.string.notification_content_second))
+        notificationBuilder.setContentText(getString(R.string.notification_content_first, time))
         with (NotificationManagerCompat.from(requireContext())) {
             notify(1, notificationBuilder.build())
         }

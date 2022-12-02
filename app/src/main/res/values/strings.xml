@@ -17,8 +17,7 @@
     <string name="set_time_button">Set Time</string>
     <string name="set_time_button_start_recording">Start Recording</string>
     <string name="set_time_button_recording">Recording</string>
-    <string name="notification_content_first">Time left: </string>
-    <string name="notification_content_second"> | Expand for options</string>
+    <string name="notification_content_first">Time left: %1$s | Expand for options</string>
     <string name="notification_stop">Stop Timer</string>
     <string name="notification_title"><xliff:g id="appName">Soteria</xliff:g> Safety Notification</string>
     <string name="eula_accept">Accept</string>

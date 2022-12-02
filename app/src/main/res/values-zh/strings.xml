@@ -17,8 +17,7 @@
     <string name="set_time_button">設置時間</string>
     <string name="set_time_button_start_recording">開始錄音</string>
     <string name="set_time_button_recording">開始錄音</string>
-    <string name="notification_content_first">剩下的時間: </string>
-    <string name="notification_content_second"> | 展開選項</string>
+    <string name="notification_content_first">剩下的時間: %1$s | 展開選項</string>
     <string name="notification_stop">停止定時器</string>
     <string name="notification_title"><xliff:g id="appName">Soteria</xliff:g> 安全通知</string>
     <string name="eula_accept">接受</string>

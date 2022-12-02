@@ -17,8 +17,7 @@
     <string name="set_time_button">निर्धारित समय</string>
     <string name="set_time_button_start_recording">रिकॉर्डिंग शुरू</string>
     <string name="set_time_button_recording">रिकॉर्डिंग</string>
-    <string name="notification_content_first">शेष समय: </string>
-    <string name="notification_content_second"> | विकल्पों के लिए विस्तृत करें</string>
+    <string name="notification_content_first">शेष समय: %1$s | विकल्पों के लिए विस्तृत करें</string>
     <string name="notification_stop">स्टॉप टाइमर</string>
     <string name="notification_title"><xliff:g id="appName">Soteria</xliff:g> सुरक्षा अधिसूचना</string>
     <string name="eula_accept">स्वीकार करना</string>
