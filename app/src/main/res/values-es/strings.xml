@@ -5,6 +5,7 @@
     <string name="channel_description">Notificación predeterminada</string>
     <string name="org">com.android.soteria</string>
     <string name="eula">eula</string>
+    <string name="homeTv">Hola, %1$s\nPresiona iniciar para comenzar tu cuenta regresiva de emergencia</string>
     <string name="contacts_name_hint">Introduzca su nombre</string>
     <string name="contacts_phone_hint">Ingrese su número telefónico</string>
     <string name="contacts_save">Ahorrar</string>
@@ -16,8 +17,7 @@
     <string name="set_time_button">Fijar tiempo</string>
     <string name="set_time_button_start_recording">Empezar a grabar</string>
     <string name="set_time_button_recording">Grabación</string>
-    <string name="notification_content_first">Tiempo restante: </string>
-    <string name="notification_content_second"> | Ampliar para opciones</string>
+    <string name="notification_content_first">Tiempo restante: %1$s | Ampliar para opciones</string>
     <string name="notification_stop">Detener temporizador</string>
     <string name="notification_title"><xliff:g id="appName">Soteria</xliff:g> Notificación de seguridad</string>
     <string name="eula_accept">Aceptar</string>
