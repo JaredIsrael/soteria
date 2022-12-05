@@ -152,10 +152,9 @@ class HomeFragment : Fragment(), View.OnClickListener, TimePickerDialog.OnTimeSe
         homeTv = view.findViewById(R.id.tvHome)
         homeTv.requestFocus()
         homeTv.textSize = 24F
-        lifecycleScope.launch {
-            val name = (activity as MainActivity).readStringFromDatastore("name")
-            homeTv.text = getString(R.string.homeTv, name)
-        }
+
+        homeTv.text = getString(R.string.homeTv, "Braxton")
+
 
         homeTv = view.findViewById(R.id.tvHome)
         homeTv.requestFocus()
